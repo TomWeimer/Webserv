@@ -1,4 +1,4 @@
-#include "request.hpp"
+#include "Request.hpp"
 
 Request::Request(int socketFD, char *fullRequest){
 	this->_socket_fd = socketFD;

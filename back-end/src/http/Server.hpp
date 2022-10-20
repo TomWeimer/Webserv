@@ -11,8 +11,8 @@
 #include <sys/socket.h>
 #include <stdlib.h>
 #include <netinet/in.h>
-#include "request.hpp"
-#include "answer.hpp"
+#include "Request.hpp"
+#include "Answer.hpp"
 
 // #define PORT 8080
 

@@ -12,15 +12,15 @@ TARGET	:= server
 ##								SOURCES											##
 ##------------------------------------------------------------------------------##
 SRC	:= main.cpp \
-		server/answer.cpp \
-		server/request.cpp \
-		server/server.cpp \
-		server/utils.cpp
+		http/answer.cpp \
+		http/request.cpp \
+		http/server.cpp \
+		http/utils.cpp
 
 # Src directory
-SRC_DIR		:=	./src/
+SRC_DIR		:=	./back-end/src/
 # Subdirectories of src
-SRCS_SUBDIR := ./src/server/
+SRCS_SUBDIR := ./back-end/src/http
 
 # Full paths sources
 SRCS		:= $(addprefix $(SRC_DIR), $(SRC))

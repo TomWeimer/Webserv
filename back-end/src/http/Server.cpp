@@ -1,4 +1,4 @@
-#include "server.hpp"
+#include "Server.hpp"
 
 Server::Server(){
 	if ((this->_server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
