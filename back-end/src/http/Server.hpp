@@ -13,6 +13,7 @@
 #include <netinet/in.h>
 #include "Request.hpp"
 #include "Answer.hpp"
+#include "../core/configuration/Settings/Settings.hpp"
 
 // #define PORT 8080
 
@@ -22,6 +23,7 @@ class Server {
 		struct sockaddr_in	_address;
 		int					_addrlen;
 		int					_PORT;
+		Settings			_settingsInfo;
 
 	public:
 		Server();

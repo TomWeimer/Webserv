@@ -1,4 +1,4 @@
-#include "server.hpp"
+#include "Server.hpp"
 
 char	*ft_strjoin(char *s, char c)
 {

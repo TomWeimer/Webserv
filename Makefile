@@ -15,12 +15,13 @@ SRC	:= main.cpp \
 		http/answer.cpp \
 		http/request.cpp \
 		http/server.cpp \
-		http/utils.cpp
+		http/utils.cpp \
+		core/configuration/Settings/Settings.cpp
 
 # Src directory
 SRC_DIR		:=	./back-end/src/
 # Subdirectories of src
-SRCS_SUBDIR := ./back-end/src/http
+SRCS_SUBDIR := ./back-end/src/http ./back-end/src/core/configuration/Settings
 
 # Full paths sources
 SRCS		:= $(addprefix $(SRC_DIR), $(SRC))
