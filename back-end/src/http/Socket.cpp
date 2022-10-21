@@ -34,6 +34,24 @@ void Socket::listenPort(int queueLen){
         this->perrorExit("In listen");
 }
 
+void  Socket::receiveRequest(){
+    char	buffer;
+	char	*str_line;
+	int		i;
+	
+	i = 0;
+	str_line = strdup("");
+	while (recv(this->_socketFd, &buffer, 1, 0) > 0){
+		str_line = ft_strjoin(str_line, buffer);
+	}
+	i = strlen(str_line);
+	if (i == 0){
+		free(str_line);
+		str_line = NULL;
+	}
+	this->_requestBuffer = str_line;
+}
+
 int Socket::getSocketFd(){
     return this->_socketFd;
 }

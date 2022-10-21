@@ -25,7 +25,7 @@ void	Server::handle_connection(){
         std::cout << "------------------WAITNG FOR NEW CONNECTIONS-------------------" << std::endl;
         Socket clientSocket(&this->_listeningSockets[0], false);
         char buffer[30000] = {0};
-        valread = read( clientSocket.getSocketFd() , buffer, 30000);
+        valread = recv( clientSocket.getSocketFd() , buffer, 30000, 0);
         Request request(clientSocket.getSocketFd(), buffer);
         Answer answer(&request);
         answer.sendAnswer();

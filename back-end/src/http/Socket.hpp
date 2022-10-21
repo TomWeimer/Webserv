@@ -16,6 +16,7 @@ class Socket {
 		int					_addrlen;
 		int					_PORT;
 		bool				_isListening;
+		char				*_requestBuffer;
 
 
 	public:
@@ -33,5 +34,8 @@ class Socket {
 		void	bindSocket();
 		void	listenPort(int queueLen);
 		void	perrorExit(std::string str);
+		void	receiveRequest();
 
 };
+
+char	*ft_strjoin(char *s, char c);
