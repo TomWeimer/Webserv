@@ -1,16 +1,8 @@
 #include "Server.hpp"
 
 Server::Server(){
-	if ((this->_server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
-        this->perror_exit("In socket");
-	this->_PORT = 8080;
-	this->_address.sin_family = AF_INET;
-    this->_address.sin_addr.s_addr = INADDR_ANY;
-    this->_address.sin_port = htons( this->_PORT );
-    this->_addrlen = sizeof(this->_address);
-	memset(this->_address.sin_zero, 0, sizeof this->_address.sin_zero);
-	if (bind(this->_server_fd, (struct sockaddr *)&this->_address, sizeof(this->_address))<0)
-        this->perror_exit("In bind");
+    Socket listening(true);
+    this->_listeningSockets.push_back(listening); // we should addapt it when we will have more port to listen
 }
 
 Server::~Server(){
@@ -19,23 +11,22 @@ Server::~Server(){
 }
 
 void	Server::listen_connection(){
-    // TODO - check how to define and handle the max number of connection
-    if (listen(this->_server_fd, 10) < 0)
-        this->perror_exit("In listen");
+    // TODO - check how to define and handle the max number of connection 
+    // should have a loop listening on each port of the socket vector
+    this->_listeningSockets[0].listenPort(10);
 }
 
 void	Server::handle_connection(){
-    int new_socket;
+
     int valread = 0;
 
     while(1)
     {
         std::cout << "------------------WAITNG FOR NEW CONNECTIONS-------------------" << std::endl;
-        if ((new_socket = accept(this->_server_fd, (struct sockaddr *)&this->_address, (socklen_t*)&this->_addrlen))<0)
-            this->perror_exit("In accept");
+        Socket clientSocket(&this->_listeningSockets[0], false);
         char buffer[30000] = {0};
-        valread = read( new_socket , buffer, 30000);
-        Request request(new_socket, buffer);
+        valread = read( clientSocket.getSocketFd() , buffer, 30000);
+        Request request(clientSocket.getSocketFd(), buffer);
         Answer answer(&request);
         answer.sendAnswer();
     }

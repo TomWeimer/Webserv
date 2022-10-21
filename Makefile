@@ -12,10 +12,11 @@ TARGET	:= server
 ##								SOURCES											##
 ##------------------------------------------------------------------------------##
 SRC	:= main.cpp \
-		http/answer.cpp \
-		http/request.cpp \
-		http/server.cpp \
+		http/Answer.cpp \
+		http/Request.cpp \
+		http/Server.cpp \
 		http/utils.cpp \
+		http/Socket.cpp \
 		core/configuration/Settings/Settings.cpp
 
 # Src directory
