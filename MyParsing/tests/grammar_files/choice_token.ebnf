@@ -1,0 +1,2 @@
+is_digits = digits
+digits = "1" | "2"

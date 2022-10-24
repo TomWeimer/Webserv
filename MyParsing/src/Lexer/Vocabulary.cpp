@@ -108,7 +108,7 @@ std::ostream& operator<<(std::ostream& out, const Vocabulary& vocabulary)
 	for(Vocabulary::const_iterator first = vocabulary.begin(); first != vocabulary.end(); first++)
 	{
 		nameToken = first->second;
-		out << nameToken << " ::= " << vocabulary[nameToken] << std::endl;
+		out << nameToken << " = " << vocabulary[nameToken] << std::endl;
 	}
 	return (out);
 }

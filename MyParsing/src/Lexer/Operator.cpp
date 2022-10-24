@@ -8,12 +8,20 @@ Operator is_operator(std::string str)
 	return (check_syntax_operator(symbol, str));
 }
 
+std::string operator_list()
+{
+	std::string EBNFSymbol;
+
+	EBNFSymbol = "*-,|=;<>\'\"#()[]{}?";
+	return (EBNFSymbol);
+}
+
 Operator is_operator(char c)
 {
 	size_t		pos;
 	std::string EBNFSymbol;
 
-	EBNFSymbol = "*-,|=;\'\"#()[]{}?";
+	EBNFSymbol = "*-,|=;<>\'\"#()[]{}?";
 	pos = EBNFSymbol.find(c);
 	if (pos == std::string::npos)
 		return (NONE);
@@ -29,11 +37,9 @@ Operator check_syntax_operator(Operator symbol, std::string str)
 
 bool operator_come_in_pairs(Operator symbol)
 {
-	if (symbol == FIRSTQUOTE || symbol == SECONDQUOTE)
+	if (symbol == FIRSTQUOTE || symbol == SECONDQUOTE || symbol == TOKENSTART)
 		return (true);
-	else if (symbol == COMMENT || symbol == GROUPSTART)
-		return (true);
-	else if (symbol == OPTIONALSTART || symbol == REPEATSTART || symbol == SPECIAL)
+	else if (symbol == COMMENT )
 		return (true);
 	return (false);
 }
@@ -43,6 +49,8 @@ Operator check_syntax_pair_operator(Operator symbol, std::string str)
 	char c = static_cast<char>(symbol);
 	if (symbol == GROUPSTART || symbol == OPTIONALSTART || symbol == REPEATSTART)
 		c++;
+	else if (symbol == TOKENSTART)
+		c += 2;
 	if (str.find_first_of(c) == std::string::npos)
 		return (NOTPAIR);
 	return (symbol);

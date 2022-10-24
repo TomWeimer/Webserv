@@ -11,6 +11,8 @@ enum Operator
 	CHOICE			= '|',
 	DEFINITION		= '=',
 	TERMINATION		= ';',
+	TOKENSTART		= '<',
+	TOKENEND		= '>',
 	FIRSTQUOTE		= '\'',
 	SECONDQUOTE		= '\"',
 	COMMENT			= '#',
@@ -26,7 +28,7 @@ enum Operator
 	SYNTAX_ERROR	= -3
 };
 
-
+std::string operator_list();
 Operator is_operator(std::string str);
 Operator is_operator(char c);
 Operator check_syntax_operator(Operator symbol, std::string str);

@@ -29,6 +29,7 @@
 #define BOLDCYAN    "\033[1m\033[36m"      /* Bold Cyan */
 #define BOLDWHITE   "\033[1m\033[37m"      /* Bold White */
 
+
 class Lexer
 {
 private:
@@ -50,11 +51,19 @@ private:
 	bool match_operator(Input& input, Rule& rule, std::string& inputWord, std::string& ruleWord, Operator type);
 	bool match_token(Input& input, Rule& rule, std::string& inputWord, std::string& tokenName);
 
+	bool compare_content(Input& input, std::string& ruleWord);
+
 	// operator ""
 	bool match_string(Input& input, Rule& rule, std::string& inputWord, std::string& ruleWord);
 	// operator ,
 	bool match_addition(Input& input, Rule& rule, std::string& inputWord, std::string& ruleWord);
+	bool match_group(Input& input, Rule& rule, std::string& inputWord, std::string& ruleWord);
 
+	bool match_choice(Input& input, Rule& rule, std::string& lhs, std::string& rhs);
+	bool match_repeat(Input& input, Rule& rule, std::string& inputWord, std::string& ruleWord);
+	
+	bool match_subrule(Input& input, Rule& rule);
+	bool match_special(Input& input, Rule& rule, std::string& inputWord, std::string& ruleWord);
 };
 
 #endif

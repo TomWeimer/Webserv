@@ -6,36 +6,49 @@ TARGET	:= server
 ##------------------------------------------------------------------------------##
 ##								HEADERS											##
 ##------------------------------------------------------------------------------##
-
+INC = -I ./back-end/core/include/ -I ./back-end/core/tests/include
+INCLUDE	:= $(INC)	
 
 ##------------------------------------------------------------------------------##
 ##								SOURCES											##
 ##------------------------------------------------------------------------------##
-SRC	:= main.cpp \
-		http/Answer.cpp \
-		http/Request.cpp \
-		http/Server.cpp \
-		http/utils.cpp \
-		http/Socket.cpp \
-		core/configuration/Settings/Settings.cpp
+SRC	:=	src/http/Answer.cpp\
+		src/http/Request.cpp\
+		src/server/Server.cpp\
+		src/server/Socket.cpp\
+		src/server/config/Settings.cpp\
+		src/utils/utils.cpp\
+
+SRC_MAIN = src/main.cpp
+
+SRC_MAIN += $(SRC)
+
+SRC_TEST = tests/src/main.cpp tests/src/testSettings.cpp
+SRC_TEST += $(SRC) 
+		
 
 # Src directory
-SRC_DIR		:=	./back-end/src/
+SRC_DIR		:=	./back-end/core/
 # Subdirectories of src
-SRCS_SUBDIR := ./back-end/src/http ./back-end/src/core/configuration/Settings
+SRCS_SUBDIR := ./back-end/core/src ./back-end/core/src/http ./back-end/core/src/server ./back-end/core/src/server/config ./back-end/core/src/utils ./back-end/core/src/http ./back-end/core/tests/src
 
 # Full paths sources
-SRCS		:= $(addprefix $(SRC_DIR), $(SRC))
+SRCS			:= $(addprefix $(SRC_DIR), $(SRC_MAIN))
+SRCS_TEST		:= $(addprefix $(SRC_DIR), $(SRC_TEST))
 
 
 ##----------------------------------------------------------------------------------##
 ##								OBJECTS												##
 ##----------------------------------------------------------------------------------##
 OBJ := $(SRCS:.cpp=.o)
+
+OBJ_TEST := $(SRCS_TEST:.cpp=.o)
+
 # Objects directory
 OBJ_DIR	:= obj/
 # From str to obj/
 OBJS := $(subst $(SRC_DIR), $(OBJ_DIR), $(OBJ))
+OBJS_TEST := $(subst $(SRC_DIR), $(OBJ_DIR), $(OBJ_TEST))
 
 
 ##----------------------------------------------------------------------------------##
@@ -85,6 +98,9 @@ $(OBJ_DIR):
 $(TARGET):	$(SRCS) $(OBJS)
 	@ $(ECHO) "$(GREEN) $(TARGET) compiled with success!$(RESET)"
 	@ $(CC) $(CFLAGS) $(OBJS) -o $(TARGET) 
+tests: $(OBJ_DIR) $(SRCS_TEST) $(OBJS_TEST)
+	@ $(ECHO) "$(GREEN) $(TARGET) compiled with success!$(RESET)"
+	@ $(CC) $(CFLAGS) $(OBJS_TEST) -o $(TARGET)
 
 clean:
 	@ $(ECHO) "\n $(RED)removing:\n		$(RESET) $(TARGET) *.o $(RESET)"
@@ -97,5 +113,5 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re tests
     

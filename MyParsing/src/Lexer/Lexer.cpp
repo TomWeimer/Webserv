@@ -12,7 +12,7 @@ std::vector<std::string> Lexer::lexeme(std::string configFile)
 	std::string					line;
 	fileContent  = createInputFromFile(configFile);
 
-	std::cerr << fileContent << std::endl;
+	//std::cerr << fileContent << std::endl;
 	for (size_t j = 0; j < fileContent.size(); j++)
 	{
 		
@@ -21,7 +21,7 @@ std::vector<std::string> Lexer::lexeme(std::string configFile)
 			line += fileContent[j];
 			if (only_whitespace(line.begin(), line.end()) == false)
 				v.push_back(recognize(line));
-			std::cerr << "OK" << std::endl;
+		//	std::cerr << "OK" << std::endl;
 			line.clear();
 		}
 		else
@@ -38,11 +38,9 @@ std::string Lexer::recognize(std::string line)
 	Rule		ruleToken;
 	Input		copyInput;
 
-	std::cerr << "size before" << line.size() << std::endl;
 	if (line.empty() == false && line[line.size() - 1] == '\n')
 		line.erase(line.size() - 1, 1);
-	std::cerr << "size after" << line.size() << std::endl;
-	std::cerr << "LINE: "<< line << std::endl;
+	
 
 	if (_rules.empty() == false)
 	{
@@ -79,45 +77,108 @@ bool Lexer::match_rule(Input& input, Rule& rule)
 	std::string inputWord;
 	std::string ruleWord;
 
-		std::cerr << "------------------------------------------------------------------" << std::endl;
-		std::cerr << "RULE START:" << std::endl;
-		std::cerr << "rule content:" << rule.get_content() << std::endl;
-			std::cerr << "input: " << input.empty() << std::endl;
-			std::cerr << "rule: " << rule.empty() << std::endl;
+	std::cerr << "------------------------------------------------------------------" << std::endl;
+	std::cerr << "RULE START:" << std::endl;
+	std::cerr << "rule content:" << rule.get_content() << std::endl;
 	while (input.empty() == false && rule.empty() == false)
 	{
-
 		inputWord = input.nextWord();
 		ruleWord = rule.nextWord();
+		if (SPECIAL == is_operator(rule.get_content()))
+			return (false);
 		rule.eraseWord(ruleWord.size());
+	
+		
 		if (match_word(input, rule, inputWord, ruleWord) == false)
 		{
-			std::cerr << "ruleWord: " << ruleWord << std::endl;
+			
 			std::cerr << "result: " << BOLDRED << "FALSE" << RESET << std::endl;
 			return (false);
 		}
-		std::cerr << "ruleWord: " << ruleWord << std::endl;
-		std::cerr << "result: " << BOLDGREEN << "OK" << RESET << std::endl;
-		std::cerr << "input: " << input.get_content() << std::endl;
-		input.eraseWord(ruleWord.size());
 		
-		std::cerr << "input: " << input.get_content() << std::endl;
-		std::cerr << "rule: " << rule.get_content() << std::endl;
+		std::cerr << "result: " << BOLDGREEN << "OK" << RESET << std::endl;
+			std::cerr << "INPUT here: " << input.get_content() << std::endl;
+		input.eraseWord(ruleWord.size());
+		std::cerr << "INPUT here: " << input.get_content() << std::endl;
+		std::cerr << "RULE here: " << rule.get_content() << std::endl;
+		
+		
 	}
 	if (input.empty() == false || rule.empty() == false)
 	{
+		std::cerr << "input is empty: ";
+		if (input.empty() == true)
+			std::cerr << GREEN << "yes" << RESET << std::endl;
+		else
+		{
+			std::cerr << RED << "no" <<  RESET << std::endl;
+			std::cerr << "input remained content: " << input.get_content() << std::endl;
+		}
+
+		std::cerr << "rule is empty: ";
+		if (rule.empty() == true)
+		{
+				std::cerr << GREEN << "yes" << RESET << std::endl;
+		}
+		else
+		{
+		std::cerr << RED << "no" << RESET << std::endl;
+		std::cerr << "rule remained content: " << rule.get_content() << std::endl;
+		}
+		std::cerr << YELLOW << "NOT EMPTY" << RESET << std::endl;
 		return (false);
 	}
 		
 	return (true);
 }
 
+
+
+bool Lexer::match_subrule(Input& input, Rule& rule)
+{
+	std::string inputWord;
+	std::string ruleWord;
+
+	std::cerr << "------------------------------------------------------------------" << std::endl;
+	std::cerr << "RULE START:" << std::endl;
+	std::cerr << "rule content:" << rule.get_content() << std::endl;
+	while (input.empty() == false && rule.empty() == false)
+	{
+
+		inputWord = input.nextWord();
+		std::cerr << "INPUT now: " << input.get_content() << std::endl;
+		ruleWord = rule.nextWord();
+		rule.eraseWord(ruleWord.size());
+		if (match_word(input, rule, inputWord, ruleWord) == false)
+		{
+			
+			std::cerr << "result: " << BOLDRED << "FALSE" << RESET << std::endl;
+			return (false);
+		}
+		
+		std::cerr << "result: " << BOLDGREEN << "OK" << RESET << std::endl;
+		//std::cerr << "INPUT: " << input.get_content() << std::endl;
+		input.eraseWord(ruleWord.size());
+		std::cerr << "INPUT here: " << input.get_content() << std::endl;
+		std::cerr << "RULE here: " << rule.get_content() << std::endl;
+	}
+	if (rule.empty() != true)
+		return (false);
+	return (true);
+}
+
+
+
 bool Lexer::match_word(Input& input, Rule& rule, std::string& inputWord, std::string& ruleWord)
 {
 	Operator type;
 	type = is_operator(ruleWord);
+	std::cerr << type << std::endl;
+	std::cerr << ruleWord << std::endl;
 	if (type > 0)
+	{
 		return (match_operator(input, rule, inputWord, ruleWord, type));
+	}
 	return (match_token(input, rule, inputWord, ruleWord));
 }
 
@@ -125,18 +186,16 @@ bool Lexer::match_operator(Input& input, Rule& rule, std::string& inputWord, std
 {
 	match_t function;
 	bool	result;
-	std::cerr << "TYPE: " << type << std::endl;
 	std::cerr << BOLDWHITE << "\noperator		" << RESET
 	<< BLUE << _operator_name[type]
 	<< RESET << std::endl;
 
-	std::cerr << "input:	" << input.get_content() << " 	inputWord: " << inputWord  << std::endl;
-	std::cerr << "rule:	" << rule.get_content() << "	ruleWord: " << ruleWord  << std::endl;
+	
+
 
 	
 	function = _match[type];
 	result = (this->*function)(input, rule, inputWord, ruleWord);
-	
 	return (result);
 }
 
@@ -155,14 +214,25 @@ bool Lexer::match_token(Input& input, Rule& rule, std::string& inputWord, std::s
 	<< RESET  << std::endl;
 
 	ruleContent = _rules[tokenName];
-
-	std::cerr << "ruleContent: "  <<  "->"<< ruleContent << "<-" << std::endl;
+	std::cerr << "rule1: ->" << rule.get_content() << "<-" << std::endl;
 	if (ruleContent.empty() == true)
 		return (false);
+	(void) inputWord;
 	newRule.set_content(ruleContent);
-	newInput.set_content(inputWord);
-	if (match_rule(newInput, newRule) == false)
+	newInput.set_content(input.get_content());
+	std::cerr << "INPUT BEFORE: " << input.get_content() << std::endl;
+	if (match_subrule(newInput, newRule) == false)
+	{
+		
+		// std::cerr << "TRUE" << std::endl;
 		return (false);
+	}
+	input.set_content(newInput.get_content());
+	tokenName = "";
+	std::cerr << "name: " << tokenName << std::endl;
+	std::cerr << "INPUT AFTER: " << input.get_content() << std::endl;
+	std::cerr << "ruleWord: " << tokenName << std::endl;
+	//input.eraseWord(newInput.get_content().size());
 	return (true);
 } 
 // revoir
@@ -182,4 +252,25 @@ Lexer::Lexer(Vocabulary &tokenRules)
 	operatorName.clear();
 	operatorName =  "... , ...";
 	_operator_name.insert(std::make_pair(CONCATENATION, operatorName));
+
+	_match.insert(std::make_pair(GROUPSTART, &Lexer::match_group));
+	operatorName.clear();
+	operatorName =  "(...)";
+	_operator_name.insert(std::make_pair(GROUPSTART, operatorName));
+
+	_match.insert(std::make_pair(CHOICE, &Lexer::match_choice));
+	operatorName.clear();
+	operatorName =  "...|...";
+	_operator_name.insert(std::make_pair(CHOICE, operatorName));
+
+	_match.insert(std::make_pair(REPEATSTART, &Lexer::match_repeat));
+	operatorName.clear();
+	operatorName =  "{...}";
+	_operator_name.insert(std::make_pair(REPEATSTART, operatorName));
+
+	_match.insert(std::make_pair(SPECIAL, &Lexer::match_special));
+	operatorName.clear();
+	operatorName =  "?...?";
+	_operator_name.insert(std::make_pair(SPECIAL, operatorName));
+	
 }

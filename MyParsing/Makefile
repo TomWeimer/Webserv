@@ -7,31 +7,40 @@ TARGET	:= MyParsing
 ##------------------------------------------------------------------------------##
 ##								HEADERS											##
 ##------------------------------------------------------------------------------##
-INC = include/
-INCLUDE	:=  -I $(INC)	
+INC = -I $(realpath ..)/back-end/core/include -I $(realpath ..)/MyParsing/tests/include/ -I $(realpath ..)/MyParsing/include/
+INCLUDE	:= $(INC)	
 
 
 ##------------------------------------------------------------------------------##
 ##								SOURCES											##
 ##------------------------------------------------------------------------------##
-SRC	:=	Lexer/Operator.cpp main.cpp Lexer/Vocabulary.cpp Lexer/Lexer.cpp Lexer/Lexer-operator.cpp Lexer/Input.cpp Lexer/Rule.cpp
+SRC	:=	MyParsing/src/Lexer/Operator.cpp MyParsing/src/Lexer/Vocabulary.cpp MyParsing/src/Lexer/Lexer2.cpp MyParsing/src/Lexer/Input.cpp MyParsing/src/Lexer/Rule.cpp back-end/core/src/server/config/Settings.cpp
+
+SRC_LEXER = MyParsing/src/main.cpp
+SRC_LEXER += $(SRC)
+SRC_TEST = MyParsing/tests/src/main.cpp MyParsing/tests/src/Logfile.cpp
+SRC_TEST += $(SRC)
 
 # Src directory
-SRC_DIR		:=	./src/
+SRC_DIR		:=	$(realpath ..)/
 # Subdirectories of src
-SRCS_SUBDIR	:= ./src/Lexer
+SRCS_SUBDIR	:= $(SRC_DIR)/MyParsing $(SRC_DIR)/MyParsing/tests/src  $(SRC_DIR)/MyParsing $(SRC_DIR)/MyParsing/src $(SRC_DIR)/MyParsing/src/Lexer $(SRC_DIR)/back-end/core/src/server/config
 # Full paths sources
-SRCS		:= $(addprefix $(SRC_DIR), $(SRC))
+SRCS		:= $(addprefix $(SRC_DIR), $(SRC_LEXER))
+SRCS_TEST	:= $(addprefix $(SRC_DIR), $(SRC_TEST))
 
 
 ##----------------------------------------------------------------------------------##
 ##								OBJECTS												##
 ##----------------------------------------------------------------------------------##
 OBJ := $(SRCS:.cpp=.o)
+OBJ_TEST := $(SRCS_TEST:.cpp=.o)
 # Objects directory
-OBJ_DIR	:= obj/
+OBJ_DIR	:= $(realpath .)/obj/
 # From str to obj/
 OBJS := $(subst $(SRC_DIR), $(OBJ_DIR), $(OBJ))
+
+OBJS_TEST := $(subst $(SRC_DIR), $(OBJ_DIR), $(OBJ_TEST))
 
 
 ##----------------------------------------------------------------------------------##
@@ -80,7 +89,13 @@ $(OBJ_DIR):
 
 $(TARGET):	$(SRCS) $(OBJS)
 	@ $(ECHO) "$(GREEN) $(TARGET) compiled with success!$(RESET)"
-	@ $(CC) $(CFLAGS) $(OBJS) -o $(TARGET) 
+	@$(CC) $(CFLAGS) $(OBJS) -o $(TARGET)
+
+tests: $(OBJ_DIR) $(SRCS_TEST) $(OBJS_TEST)
+	@ $(ECHO) "$(GREEN) $(TARGET) compiled with success!$(RESET)"
+	@$(CC) $(CFLAGS) $(OBJS_TEST) -o $(TARGET)
+
+
 
 clean:
 	@ $(ECHO) "\n $(RED)removing:\n		$(RESET) $(TARGET) *.o $(RESET)"
@@ -93,5 +108,5 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re tests
     
