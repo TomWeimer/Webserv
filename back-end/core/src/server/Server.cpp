@@ -1,4 +1,4 @@
-#include "http/Server.hpp"
+#include "../../include/http/Server.hpp"
 
 Server::Server(){
     Socket listening(true);
@@ -17,19 +17,59 @@ void	Server::listen_connection(){
 }
 
 void	Server::handle_connection(){
+	fd_set	master, read_fds;
+	int		fdMax;//, nbytes;
+	socklen_t addrlen;
+	int listener = this->_listeningSockets[0].getSocketFd();
+	int newfd;
+	struct sockaddr_storage remoteaddr; // client address
+	char *buf = (char*)malloc(sizeof(char) * 200);
+	bzero((void*)buf, 200);
+	FD_ZERO(&master);
+	FD_ZERO(&read_fds);
+	FD_SET(listener, &master);
+	fdMax = listener; 
+	int	yes = 1;
 
-    int valread = 0;
+	if (setsockopt(listener, SOL_SOCKET ,SO_REUSEADDR ,&yes,sizeof yes) == -1){
+		perror("setsockopt");
+		exit(1);
+	}
 
     while(1)
     {
         std::cout << "------------------WAITNG FOR NEW CONNECTIONS-------------------" << std::endl;
-        Socket clientSocket(&this->_listeningSockets[0], false);
-        char buffer[30000] = {0};
-        valread = recv( clientSocket.getSocketFd() , buffer, 30000, 0);
-		(void)valread;
-        Request request(clientSocket.getSocketFd(), buffer);
-        Answer answer(&request);
-        answer.sendAnswer();
+		read_fds = master;
+		if (select(fdMax+1, &read_fds, NULL, NULL, NULL) == -1)
+			this->perror_exit("select");
+		for (int i = 0; i <= fdMax; i++){
+			if (FD_ISSET(i, &read_fds)){
+				if (i == listener) { // handle new connection
+					newfd = accept(listener,(struct sockaddr *)&remoteaddr, &addrlen);
+					if (newfd == -1)
+						perror("accept");
+					else{
+						FD_SET(newfd, &master);
+						if (newfd > fdMax)
+							fdMax = newfd;
+				}
+				} else { //handle message from client
+					std::string fileStr;
+					int nDataLength;
+					while ((nDataLength = recv(i, buf, 200, 0)) > 0) {
+						fileStr.append(buf, nDataLength);
+						if (buf[nDataLength - 1] == '\n')
+							break;
+						bzero((void*)buf, 200);
+					}
+					Request request(i, fileStr);
+					Answer answer(&request);
+					answer.sendAnswer();
+					close(i);
+					FD_CLR(i, &master);
+				}
+			}
+		}
     }
 }
 
