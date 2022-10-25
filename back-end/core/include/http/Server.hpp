@@ -22,6 +22,8 @@
 class Server {
 	private:
 		std::vector<Socket>		_listeningSockets;
+		fd_set					*_master;
+		fd_set					*_readFds;
 		Settings				_settingsInfo;
 
 	public:
@@ -31,6 +33,8 @@ class Server {
 		void listen_connection();
 		void handle_connection();
 		void perror_exit(std::string str);
+		std::string	recvMessage(int socketFd);
+		void initFdset();
 };
 
 char	*ft_strjoin(char *s, char c);

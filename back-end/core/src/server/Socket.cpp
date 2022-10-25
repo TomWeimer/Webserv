@@ -16,7 +16,7 @@ Socket::Socket(bool isListening): _isListening(isListening){
 Socket::Socket( Socket * listeningSocket, bool isListening){
     if (isListening == false){
         if ((this->_socketFd = accept(listeningSocket->getSocketFd(), (struct sockaddr *)listeningSocket->getPtrAddress(), (socklen_t*)listeningSocket->getPtrAddrlen()))<0) 
-                this->perrorExit("In accept");
+            perror("In accept");
         this->_isListening = false;
     }
 }
@@ -32,24 +32,6 @@ void Socket::bindSocket(){
 void Socket::listenPort(int queueLen){
     if (listen(this->_socketFd, queueLen) < 0)
         this->perrorExit("In listen");
-}
-
-void  Socket::receiveRequest(){
-    char	buffer;
-	char	*str_line;
-	int		i;
-	
-	i = 0;
-	str_line = strdup("");
-	while (recv(this->_socketFd, &buffer, 1, 0) > 0){
-		str_line = ft_strjoin(str_line, buffer);
-	}
-	i = strlen(str_line);
-	if (i == 0){
-		free(str_line);
-		str_line = NULL;
-	}
-	this->_requestBuffer = str_line;
 }
 
 int Socket::getSocketFd(){

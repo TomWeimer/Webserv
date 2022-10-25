@@ -18,13 +18,8 @@ void	Server::listen_connection(){
 
 void	Server::handle_connection(){
 	fd_set	master, read_fds;
-	int		fdMax;//, nbytes;
-	socklen_t addrlen;
+	int		fdMax;
 	int listener = this->_listeningSockets[0].getSocketFd();
-	int newfd;
-	struct sockaddr_storage remoteaddr; // client address
-	char *buf = (char*)malloc(sizeof(char) * 200);
-	bzero((void*)buf, 200);
 	FD_ZERO(&master);
 	FD_ZERO(&read_fds);
 	FD_SET(listener, &master);
@@ -45,23 +40,16 @@ void	Server::handle_connection(){
 		for (int i = 0; i <= fdMax; i++){
 			if (FD_ISSET(i, &read_fds)){
 				if (i == listener) { // handle new connection
-					newfd = accept(listener,(struct sockaddr *)&remoteaddr, &addrlen);
-					if (newfd == -1)
+					Socket client(&this->_listeningSockets[0], false);
+					if (client.getSocketFd() == -1)
 						perror("accept");
 					else{
-						FD_SET(newfd, &master);
-						if (newfd > fdMax)
-							fdMax = newfd;
+						FD_SET(client.getSocketFd(), &master);
+						if (client.getSocketFd() > fdMax)
+							fdMax = client.getSocketFd();
 				}
 				} else { //handle message from client
-					std::string fileStr;
-					int nDataLength;
-					while ((nDataLength = recv(i, buf, 200, 0)) > 0) {
-						fileStr.append(buf, nDataLength);
-						if (buf[nDataLength - 1] == '\n')
-							break;
-						bzero((void*)buf, 200);
-					}
+					std::string fileStr = this->recvMessage(i);
 					Request request(i, fileStr);
 					Answer answer(&request);
 					answer.sendAnswer();
@@ -71,6 +59,20 @@ void	Server::handle_connection(){
 			}
 		}
     }
+}
+
+std::string Server::recvMessage(int socketFd){
+	char *buf = (char*)calloc(200, sizeof(char));
+	std::string fileStr;
+	int nDataLength;
+
+	while ((nDataLength = recv(socketFd, buf, 200, 0)) > 0) {
+		fileStr.append(buf, nDataLength);
+		if (buf[nDataLength - 1] == '\n')
+			break;
+		bzero((void*)buf, 200);
+	}
+	return fileStr;
 }
 
 void    Server::perror_exit(std::string str){
