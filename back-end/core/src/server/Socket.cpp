@@ -1,10 +1,9 @@
 #include "../../include/http/Socket.hpp"
 
-Socket::Socket(bool isListening): _isListening(isListening){
+Socket::Socket(bool isListening, int port): _isListening(isListening), _PORT(port){
     if (this->_isListening){
         if ((this->_socketFd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
             this->perrorExit("In socket");
-        this->_PORT = 8080;
         this->_address.sin_family = AF_INET;
         this->_address.sin_addr.s_addr = INADDR_ANY;
         this->_address.sin_port = htons( this->_PORT );

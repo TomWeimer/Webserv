@@ -22,8 +22,8 @@
 class Server {
 	private:
 		std::vector<Socket>		_listeningSockets;
-		fd_set					*_master;
-		fd_set					*_readFds;
+		fd_set					_master;
+		fd_set					_readFds;
 		Settings				_settingsInfo;
 
 	public:
