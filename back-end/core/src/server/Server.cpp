@@ -2,6 +2,8 @@
 
 Server::Server(){
     Socket listening(true, 8080);
+	this->_timeout.tv_sec = 2;
+	this->_timeout.tv_usec = 500000;
     this->_listeningSockets.push_back(listening); // we should addapt it when we will have more port to listen
 	this->initFdset();
 }
@@ -17,22 +19,18 @@ void	Server::listen_connection(){
     this->_listeningSockets[0].listenPort(10);
 }
 
-void	Server::handle_connection(){ //TODO : handle timeout!!
+void	Server::handle_connection(){
 	int		fdMax;
 	int listener = this->_listeningSockets[0].getSocketFd();
 	fdMax = listener; 
-	int	yes = 1;
 
-	if (setsockopt(listener, SOL_SOCKET ,SO_REUSEADDR ,&yes,sizeof yes) == -1){ //remove "adress already in use" error msg
-		perror("setsockopt");
-		exit(1);
-	}
 
+	this->socketOption();
     while(1) 
     {
-        std::cout << "------------------WAITNG FOR NEW CONNECTIONS-------------------" << std::endl;
+        std::cout << "------------------WAITNG FOR NEW CONNECTIONS... (timeout = 2.5 seconde) -------------------" << std::endl;
 		this->_readFds = this->_master;
-		if (select(fdMax+1, &this->_readFds, NULL, NULL, NULL) == -1)
+		if (select(fdMax+1, &this->_readFds, NULL, NULL, &this->_timeout) == -1)
 			this->perror_exit("select");
 		for (int i = 0; i <= fdMax; i++){
 			if (FD_ISSET(i, &this->_readFds)){
@@ -72,6 +70,14 @@ std::string Server::recvMessage(int socketFd){
 	return fileStr;
 }
 
+void Server::socketOption(){
+	int yes = 1;
+
+	if (setsockopt(this->_listeningSockets[0].getSocketFd(), SOL_SOCKET ,SO_REUSEADDR ,&yes,sizeof yes) == -1){ //remove "adress already in use" error msg
+		perror("setsockopt");
+		exit(1);
+	}
+}
 void Server::initFdset(){
 	FD_ZERO(&this->_master);
 	FD_ZERO(&this->_readFds);
