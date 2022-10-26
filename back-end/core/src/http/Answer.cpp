@@ -35,7 +35,7 @@ void Answer::setFullAnswer(){
 }
 
 void Answer::sendAnswer(){
-	write(this->_request->getSocketFd(), this->_full_Answer, strlen(this->_full_Answer));
+	send(this->_request->getSocketFd(), this->_full_Answer, strlen(this->_full_Answer), 0);
 	close(this->_request->getSocketFd());
 	std::cout << "------------------ Answer sent -------------------" << std::endl;
 }

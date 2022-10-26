@@ -31,7 +31,7 @@ void	Server::handleConnection(){
 	int		fdMax;
 	fdMax = this->maxListenerFd(); 
 
-	this->socketOption(); //remove "adress already in use" error msg
+	this->socketOption(); //remove recurent "adress already in use" error msg
     while(1) 
     {
         std::cout << "---------WAITNG FOR NEW CONNECTIONS... (timeout = 2.5 seconde) -----------" << std::endl;
@@ -39,10 +39,10 @@ void	Server::handleConnection(){
 		if (select(fdMax+1, &this->_readFds, NULL, NULL, &this->_timeout) == -1)
 			this->perror_exit("select");
 		for (int i = 0; i <= fdMax; i++){
-			if (FD_ISSET(i, &this->_readFds)){ //if the socket i is ready
-				if (this->isListener(i)) { // if it's a listening socket -> new connection
+			if (FD_ISSET(i, &this->_readFds)){ // if the socket i is ready
+				if (this->isListener(i)) { // if i is a listening socket -> new connection
 					this->acceptConnection(i, fdMax);
-				} else { //handle message from client
+				} else { // j
 					this->handleRequest(i);
 				}
 			}
@@ -100,7 +100,6 @@ void Server::initFdset(){
 	FD_ZERO(&this->_readFds);
 	for (int i = 0; i < (int)this->_listeningSockets.size(); i++){
 		FD_SET(this->_listeningSockets[i].getSocketFd(), &this->_master);
-		std::cout << this->_listeningSockets[i].getSocketFd() << std::endl;
 	}
 }
 
