@@ -15,24 +15,21 @@ Server::~Server(){
 void Server::initSocket(){
 	for (int i = 0; i < (int)this->_settingsInfo.get_serverInfo().port.size(); i++){
 		Socket *listening = new Socket(true, this->_settingsInfo.get_serverInfo().port[i]);
-	    this->_listeningSockets.push_back(*listening); 
+	    this->_listeningSockets.push_back(*listening);
 	}
 }
 
-void	Server::listen_connection(){
+void	Server::listenConnection(){
     // TODO - check how to define and handle the max number of connection 
-    // should have a loop listening on each port of the socket vector
 	for (int i = 0; i < (int)this->_listeningSockets.size(); i++){
 		std::cout << "listening on PORT:  "  << this->_settingsInfo.get_serverInfo().port[i] << std::endl;
    		this->_listeningSockets[i].listenPort(10);
 	}
 }
 
-void	Server::handle_connection(){
+void	Server::handleConnection(){
 	int		fdMax;
-	// int listener = this->_listeningSockets[0].getSocketFd();
 	fdMax = this->maxListenerFd(); 
-
 
 	this->socketOption(); //remove "adress already in use" error msg
     while(1) 
@@ -42,27 +39,35 @@ void	Server::handle_connection(){
 		if (select(fdMax+1, &this->_readFds, NULL, NULL, &this->_timeout) == -1)
 			this->perror_exit("select");
 		for (int i = 0; i <= fdMax; i++){
-			if (FD_ISSET(i, &this->_readFds)){
-				if (this->isListener(i)) { // handle new connection
-					Socket client(this->findListenerFd(i), false);
-					if (client.getSocketFd() == -1)
-						perror("accept");
-					else{
-						FD_SET(client.getSocketFd(), &this->_master);
-						if (client.getSocketFd() > fdMax)
-							fdMax = client.getSocketFd();
-				}
+			if (FD_ISSET(i, &this->_readFds)){ //if the socket i is ready
+				if (this->isListener(i)) { // if it's a listening socket -> new connection
+					this->acceptConnection(i, fdMax);
 				} else { //handle message from client
-					std::string fileStr = this->recvMessage(i);
-					Request request(i, fileStr);
-					Answer answer(&request);
-					answer.sendAnswer();
-					close(i);
-					FD_CLR(i, &this->_master);
+					this->handleRequest(i);
 				}
 			}
 		}
     }
+}
+
+void	Server::acceptConnection(int socketFd, int & fdMax){
+		Socket client(this->findListenerFd(socketFd), false);
+		if (client.getSocketFd() == -1)
+			perror("accept");
+		else{
+			FD_SET(client.getSocketFd(), &this->_master);
+			if (client.getSocketFd() > fdMax)
+				fdMax = client.getSocketFd();
+		}
+}
+
+void	Server::handleRequest(int socketFd){
+	std::string fileStr = this->recvMessage(socketFd);
+	Request request(socketFd, fileStr);
+	Answer answer(&request);
+	answer.sendAnswer();
+	close(socketFd);
+	FD_CLR(socketFd, &this->_master);
 }
 
 std::string Server::recvMessage(int socketFd){
@@ -76,6 +81,7 @@ std::string Server::recvMessage(int socketFd){
 			break;
 		bzero((void*)buf, 200);
 	}
+	free(buf);
 	return fileStr;
 }
 

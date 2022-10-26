@@ -3,6 +3,6 @@
 int main(){
     Server server;
 
-    server.listen_connection();
-    server.handle_connection();
+    server.listenConnection();
+    server.handleConnection();
 }

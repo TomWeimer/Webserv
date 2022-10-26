@@ -32,9 +32,11 @@ class Server {
 		Server();
 		~Server();
 
-		void 		listen_connection();
-		void 		handle_connection();
+		void 		listenConnection();
+		void 		handleConnection();
 		void 		perror_exit(std::string str);
+		void		acceptConnection(int socketFd, int & fdMax);
+		void		handleRequest(int socketFd);
 		std::string	recvMessage(int socketFd);
 		void 		initFdset();
 		void		initSocket();
