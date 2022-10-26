@@ -18,10 +18,7 @@
 
 class Answer {
 	private:
-		char*			_full_Answer;
-		// char*			_body;
-		// char*			_header;
-		// int				_status;
+		std::string		_fullAnswer;
 		Request			*_request;
 		bool			_invalid_rout;
 

@@ -19,7 +19,7 @@ void Answer::setFullAnswer(){
 
 	file.open(this->_request->getRout());
 	if (!file.is_open()){
-		this->_full_Answer = strdup("HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 15\n\nPage not found!");
+		this->_fullAnswer = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 15\n\nPage not found!";
 		this->_invalid_rout = true;
 		return;
 	} 
@@ -28,14 +28,13 @@ void Answer::setFullAnswer(){
 			file_content += line + "\n";
 		}
 		file.close();
-		full_answer = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: "
+		this->_fullAnswer = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: "
 					+ std::to_string(file_content.size()) + "\n\n" + file_content; 
-		this->_full_Answer = strdup((char *)full_answer.c_str());
 	}
 }
 
 void Answer::sendAnswer(){
-	send(this->_request->getSocketFd(), this->_full_Answer, strlen(this->_full_Answer), 0);
+	send(this->_request->getSocketFd(), this->_fullAnswer.c_str(), this->_fullAnswer.size(), 0);
 	close(this->_request->getSocketFd());
 	std::cout << "------------------ Answer sent -------------------" << std::endl;
 }

@@ -42,7 +42,7 @@ void	Server::handleConnection(){
 			if (FD_ISSET(i, &this->_readFds)){ // if the socket i is ready
 				if (this->isListener(i)) { // if i is a listening socket -> new connection
 					this->acceptConnection(i, fdMax);
-				} else { // j
+				} else { // handle message from client
 					this->handleRequest(i);
 				}
 			}
