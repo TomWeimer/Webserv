@@ -37,7 +37,11 @@ class Server {
 		void 		perror_exit(std::string str);
 		std::string	recvMessage(int socketFd);
 		void 		initFdset();
+		void		initSocket();
 		void 		socketOption(); //goal: remove the "adress already in use" error
+		bool		isListener(int socketFd);
+		int 		maxListenerFd();
+		Socket 		*findListenerFd(int socketFd);
 };
 
 char	*ft_strjoin(char *s, char c);

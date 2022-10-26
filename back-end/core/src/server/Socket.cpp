@@ -25,7 +25,6 @@ Socket::~Socket(){}
 void Socket::bindSocket(){
     	if (bind(this->_socketFd, (struct sockaddr *)&this->_address, sizeof(this->_address))<0)
         this->perrorExit("In bind");
-        std::cout << "LISTENING TO PORT: " << this->_PORT << std::endl;
 }
 
 void Socket::listenPort(int queueLen){

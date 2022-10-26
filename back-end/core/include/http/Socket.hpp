@@ -23,6 +23,7 @@ class Socket {
 		Socket(bool isListening, int port); 	//constructor for server/listening socket
 		Socket(Socket * ListeningSocket, bool isListening); 	//constructor for client socket
 		~Socket();
+
 		
 		int		getSocketFd();
 		int		getAddrlen();

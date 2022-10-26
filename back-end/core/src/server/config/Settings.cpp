@@ -19,7 +19,9 @@ void Settings::default_settings()
 void Settings::default_serverInfo()
 {
 	serverInfo.socket.push_back("0.0.0.0:80");
-	serverInfo.port.push_back(80);
+	serverInfo.port.push_back(8080);
+	serverInfo.port.push_back(8081);
+	serverInfo.port.push_back(8082);
 	serverInfo.host.push_back("0.0.0.0");
 	//serverInfo.name.insert("");
 	serverInfo.root = "";
