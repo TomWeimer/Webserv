@@ -7,7 +7,7 @@ Answer::Answer(Request *request){
 	if (this->_invalid_rout)
 		std::cout << "INVALID ROUT" << std::endl;
 	else
-		std::cout << "VALID ROUT" << std::endl;
+		std::cout << "VALID ROUT" << std::endl; //temporary
 }
 
 Answer::~Answer(){}

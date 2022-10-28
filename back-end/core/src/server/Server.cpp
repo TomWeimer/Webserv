@@ -33,27 +33,21 @@ void	Server::handleConnection(){ // siege -b http://localhost:8080/front-end/htm
 	fdMax = this->maxListenerFd(); 
 
 	this->socketOption(); //remove recurent "adress already in use" error msg
+    std::cout << "---------WAITNG FOR NEW CONNECTIONS... (timeout = 2.5 seconde) -----------" << std::endl;
     while(1) 
     {
-        std::cout << "---------WAITNG FOR NEW CONNECTIONS... (timeout = 2.5 seconde) -----------" << std::endl;
 		this->_readFds = this->_master;
 		if ((res = select(fdMax+1, &this->_readFds, NULL, NULL, &this->_timeout)) == -1)
 			this->perror_exit("select");
-		if (res == 0){
-			for (int i = 0; i <= fdMax; i++){
-				if (i > 2 && !this->isListener(i)){
-					close(i);
-					FD_CLR(i, &this->_master);
-					std::cout << "client " << i << " timed out, connection closed"<< std::endl;
-				}
-			}
+		if (res == 0){ //timeout
+			this->handleTimeout(fdMax);
 			continue;
 		}
 		for (int i = 0; i <= fdMax; i++){
-			if (FD_ISSET(i, &this->_readFds)){ // if the socket i is ready
-				if (this->isListener(i)) { // if i is a listening socket -> new connection
+			if (FD_ISSET(i, &this->_readFds)){ //if the socket i is ready
+				if (this->isListener(i)) { //if i is a listening socket -> new connection
 					this->acceptConnection(i, fdMax);
-				} else { // handle message from client
+				} else {// handle message from client
 					this->handleRequest(i);
 				}
 			}
@@ -61,6 +55,15 @@ void	Server::handleConnection(){ // siege -b http://localhost:8080/front-end/htm
 		
 
     }
+}
+
+void Server::handleTimeout(int fdMax){
+	for (int i = 0; i <= fdMax; i++){
+		if (i > 2 && !this->isListener(i)){
+			close(i);
+			FD_CLR(i, &this->_master);
+		}
+	}
 }
 
 void	Server::acceptConnection(int socketFd, int & fdMax){
@@ -81,6 +84,7 @@ void	Server::handleRequest(int socketFd){
 	answer.sendAnswer();
 	close(socketFd);
 	FD_CLR(socketFd, &this->_master);
+	std::cout << "---------WAITNG FOR NEW CONNECTIONS... (timeout = 2.5 seconde) -----------" << std::endl;
 }
 
 std::string Server::recvMessage(int socketFd){
@@ -97,6 +101,8 @@ std::string Server::recvMessage(int socketFd){
 	free(buf);
 	return fileStr;
 }
+
+
 
 void Server::socketOption(){ //remove "adress already in use" error msg
 	int yes = 1;

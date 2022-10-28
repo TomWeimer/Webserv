@@ -34,6 +34,7 @@ class Server {
 
 		void 		listenConnection();
 		void 		handleConnection();
+		void		handleTimeout(int fdMax);
 		void 		perror_exit(std::string str);
 		void		acceptConnection(int socketFd, int & fdMax);
 		void		handleRequest(int socketFd);
