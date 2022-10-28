@@ -20,6 +20,8 @@ void Request::setRequestType(){
 }
 
 void Request::setRout(){
+	if (this->_tokens.size() <= 0)
+		return ;	
 	this->_tokens[1].erase(0, 1);
 	this->_rout = this->_tokens[1];
 	std::cout << "ROUT: " << this->_rout << std::endl;
@@ -44,4 +46,8 @@ std::string Request::getRout(){
 
 int	Request::getSocketFd(){
 	return this->_socketFd;
+}
+
+std::string	Request::getFullRequest(){
+	return this->_fullRequest;
 }

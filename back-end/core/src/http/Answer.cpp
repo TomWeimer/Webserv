@@ -22,6 +22,8 @@ void Answer::setFullAnswer(){
 			this->getRequest();
 		else if (this->_request->getRequestType() == "DELETE")
 			this->deleteRequest();
+		else if (this->_request->getRequestType() == "DELETE")
+			this->deleteRequest();
 	}
 }
 
@@ -55,13 +57,25 @@ void Answer::deleteRequest(){
 	this->_fullAnswer = line + len + "\n\n" + this->_body;
 }
 
+void Answer::postRequest(){
+	std::ofstream outfile (this->_request->getRout().c_str());
+	size_t pos = this->_request->getFullRequest().find("\n\n");
+	std::string bodyRequest = this->_request->getFullRequest().substr(pos, this->_request->getFullRequest().length() - 1);
+	outfile << bodyRequest;
+	outfile.close();
+	this->_body = "File created";
+	std::string line = "HTTP/1.1 201 Created\nContent-Type: text/plain\nContent-Length: ";
+	std::string len = std::to_string(this->_body.size());
+	this->_fullAnswer = line + len + "\n\n" + this->_body;
+}
+
 
 void Answer::invalidRequest(std::string statusCode){
 	std::string contentType = "Content-Type: text/html\n";
 	if (statusCode == "404 Not Found")
-		setBody("front-end/html/404.html");
+		setBody("front-end/error-html/404.html");
 	else
-		setBody("front-end/html/404.html");
+		setBody("front-end/error-html/404.html");
 	std::string contentLen = "Content-Length: " + std::to_string(this->_body.size()) + "\n\n";
 	this->_fullAnswer = "HTTP/1.1 " + statusCode + "\n"
 						+ contentType + contentLen + this->_body;

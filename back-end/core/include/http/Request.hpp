@@ -36,6 +36,7 @@ class Request {
 		void		setTokens();
 		std::string getRout();
 		std::string getRequestType();
+		std::string	getFullRequest();
 		int			getSocketFd();
 };
 

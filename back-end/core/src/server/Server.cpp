@@ -29,6 +29,7 @@ void	Server::listenConnection(){
 
 void	Server::handleConnection(){ // siege -b http://localhost:8080/front-end/html/index.html
 	int		fdMax;
+	int		res;
 	fdMax = this->maxListenerFd(); 
 
 	this->socketOption(); //remove recurent "adress already in use" error msg
@@ -36,8 +37,18 @@ void	Server::handleConnection(){ // siege -b http://localhost:8080/front-end/htm
     {
         std::cout << "---------WAITNG FOR NEW CONNECTIONS... (timeout = 2.5 seconde) -----------" << std::endl;
 		this->_readFds = this->_master;
-		if (select(fdMax+1, &this->_readFds, NULL, NULL, &this->_timeout) == -1)
+		if ((res = select(fdMax+1, &this->_readFds, NULL, NULL, &this->_timeout)) == -1)
 			this->perror_exit("select");
+		if (res == 0){
+			for (int i = 0; i <= fdMax; i++){
+				if (i > 2 && !this->isListener(i)){
+					close(i);
+					FD_CLR(i, &this->_master);
+					std::cout << "client " << i << " timed out, connection closed"<< std::endl;
+				}
+			}
+			continue;
+		}
 		for (int i = 0; i <= fdMax; i++){
 			if (FD_ISSET(i, &this->_readFds)){ // if the socket i is ready
 				if (this->isListener(i)) { // if i is a listening socket -> new connection
@@ -47,6 +58,8 @@ void	Server::handleConnection(){ // siege -b http://localhost:8080/front-end/htm
 				}
 			}
 		}
+		
+
     }
 }
 
