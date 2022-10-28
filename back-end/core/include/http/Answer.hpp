@@ -19,6 +19,9 @@
 class Answer {
 	private:
 		std::string		_fullAnswer;
+		std::string		_finalLocation;
+		std::string		_header;
+		std::string		_body;
 		Request			*_request;
 		bool			_invalid_rout;
 
@@ -27,7 +30,14 @@ class Answer {
 		~Answer();
 
 		void	setFullAnswer();
+		void	setHeader();
+		void	setBody(std::string bodyLocation);
+		void	invalidRequest(std::string statusCode);
+		void	deleteRequest();
+		void	postRequest();
+		void	getRequest();
 		void	sendAnswer();
+		void	checkRout(); //temporary
 };
 
 
