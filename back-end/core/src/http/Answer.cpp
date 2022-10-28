@@ -18,7 +18,10 @@ void Answer::setFullAnswer(){
 		this->invalidRequest("404 Not Found");
 		return;
 	} else {
-		getRequest();
+		if (this->_request->getRequestType() == "GET")
+			this->getRequest();
+		else if (this->_request->getRequestType() == "DELETE")
+			this->deleteRequest();
 	}
 }
 
@@ -40,6 +43,19 @@ void Answer::getRequest(){
 	this->_fullAnswer = line + len + "\n\n" + this->_body;
 }
 
+void Answer::deleteRequest(){
+	int result = std::remove(this->_request->getRout().c_str());
+	if (!result)
+		std::cout << "deleted" << std::endl;
+	else
+		perror("Remove");
+	this->_body = "File deleted";
+	std::string line = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: ";
+	std::string len = std::to_string(this->_body.size());
+	this->_fullAnswer = line + len + "\n\n" + this->_body;
+}
+
+
 void Answer::invalidRequest(std::string statusCode){
 	std::string contentType = "Content-Type: text/html\n";
 	if (statusCode == "404 Not Found")
@@ -53,7 +69,7 @@ void Answer::invalidRequest(std::string statusCode){
 
 void Answer::sendAnswer(){
 	send(this->_request->getSocketFd(), this->_fullAnswer.c_str(), this->_fullAnswer.size(), 0);
-	close(this->_request->getSocketFd());
+	// close(this->_request->getSocketFd());
 	std::cout << "------------------ Answer sent -------------------" << std::endl;
 }
 

@@ -11,8 +11,12 @@ Request::Request(int socketFD, std::string fullRequest){
 Request::~Request(){}
 
 void Request::setRequestType(){
-	this->_rout = this->_tokens[0];
-	std::cout << "ROUT: " << this->_rout << std::endl;
+
+	if (this->_tokens.size() > 0)	
+		this->_requestType = this->_tokens[0];
+	else
+		return;
+	std::cout << "method: " << this->_requestType << std::endl;
 }
 
 void Request::setRout(){

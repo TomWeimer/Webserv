@@ -23,11 +23,11 @@ void	Server::listenConnection(){
     // TODO - check how to define and handle the max number of connection 
 	for (int i = 0; i < (int)this->_listeningSockets.size(); i++){
 		std::cout << "listening on PORT:  "  << this->_settingsInfo.get_serverInfo().port[i] << std::endl;
-   		this->_listeningSockets[i].listenPort(10);
+   		this->_listeningSockets[i].listenPort(100);
 	}
 }
 
-void	Server::handleConnection(){
+void	Server::handleConnection(){ // siege -b http://localhost:8080/front-end/html/index.html
 	int		fdMax;
 	fdMax = this->maxListenerFd(); 
 
