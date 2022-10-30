@@ -1,8 +1,10 @@
 #include "../../include/http/Server.hpp"
 
 Server::Server(){
-    Socket listening(true);
-    this->_listeningSockets.push_back(listening); // we should addapt it when we will have more port to listen
+	this->_timeout.tv_sec = 2;
+	this->_timeout.tv_usec = 500000;
+	this->initSocket();
+	this->initFdset();
 }
 
 Server::~Server(){
@@ -10,67 +12,120 @@ Server::~Server(){
     return;
 }
 
-void	Server::listen_connection(){
-    // TODO - check how to define and handle the max number of connection 
-    // should have a loop listening on each port of the socket vector
-    this->_listeningSockets[0].listenPort(10);
+void Server::initSocket(){
+	for (int i = 0; i < (int)this->_settingsInfo.get_serverInfo().port.size(); i++){
+		Socket *listening = new Socket(true, this->_settingsInfo.get_serverInfo().port[i]);
+	    this->_listeningSockets.push_back(*listening);
+	}
 }
 
-void	Server::handle_connection(){
-	fd_set	master, read_fds;
-	int		fdMax;//, nbytes;
-	socklen_t addrlen;
-	int listener = this->_listeningSockets[0].getSocketFd();
-	int newfd;
-	struct sockaddr_storage remoteaddr; // client address
-	char *buf = (char*)malloc(sizeof(char) * 200);
-	bzero((void*)buf, 200);
-	FD_ZERO(&master);
-	FD_ZERO(&read_fds);
-	FD_SET(listener, &master);
-	fdMax = listener; 
-	int	yes = 1;
-
-	if (setsockopt(listener, SOL_SOCKET ,SO_REUSEADDR ,&yes,sizeof yes) == -1){
-		perror("setsockopt");
-		exit(1);
+void	Server::listenConnection(){
+    // TODO - check how to define and handle the max number of connection 
+	for (int i = 0; i < (int)this->_listeningSockets.size(); i++){
+		std::cout << "listening on PORT:  "  << this->_settingsInfo.get_serverInfo().port[i] << std::endl;
+   		this->_listeningSockets[i].listenPort(10);
 	}
+}
 
-    while(1)
+void	Server::handleConnection(){
+	int		fdMax;
+	fdMax = this->maxListenerFd(); 
+
+	this->socketOption(); //remove recurent "adress already in use" error msg
+    while(1) 
     {
-        std::cout << "------------------WAITNG FOR NEW CONNECTIONS-------------------" << std::endl;
-		read_fds = master;
-		if (select(fdMax+1, &read_fds, NULL, NULL, NULL) == -1)
+        std::cout << "---------WAITNG FOR NEW CONNECTIONS... (timeout = 2.5 seconde) -----------" << std::endl;
+		this->_readFds = this->_master;
+		if (select(fdMax+1, &this->_readFds, NULL, NULL, &this->_timeout) == -1)
 			this->perror_exit("select");
 		for (int i = 0; i <= fdMax; i++){
-			if (FD_ISSET(i, &read_fds)){
-				if (i == listener) { // handle new connection
-					newfd = accept(listener,(struct sockaddr *)&remoteaddr, &addrlen);
-					if (newfd == -1)
-						perror("accept");
-					else{
-						FD_SET(newfd, &master);
-						if (newfd > fdMax)
-							fdMax = newfd;
-				}
-				} else { //handle message from client
-					std::string fileStr;
-					int nDataLength;
-					while ((nDataLength = recv(i, buf, 200, 0)) > 0) {
-						fileStr.append(buf, nDataLength);
-						if (buf[nDataLength - 1] == '\n')
-							break;
-						bzero((void*)buf, 200);
-					}
-					Request request(i, fileStr);
-					Answer answer(&request);
-					answer.sendAnswer();
-					close(i);
-					FD_CLR(i, &master);
+			if (FD_ISSET(i, &this->_readFds)){ // if the socket i is ready
+				if (this->isListener(i)) { // if i is a listening socket -> new connection
+					this->acceptConnection(i, fdMax);
+				} else { // handle message from client
+					this->handleRequest(i);
 				}
 			}
 		}
     }
+}
+
+void	Server::acceptConnection(int socketFd, int & fdMax){
+		Socket client(this->findListenerFd(socketFd), false);
+		if (client.getSocketFd() == -1)
+			perror("accept");
+		else{
+			FD_SET(client.getSocketFd(), &this->_master);
+			if (client.getSocketFd() > fdMax)
+				fdMax = client.getSocketFd();
+		}
+}
+
+void	Server::handleRequest(int socketFd){
+	std::string fileStr = this->recvMessage(socketFd);
+	Request request(socketFd, fileStr);
+	Answer answer(&request);
+	answer.sendAnswer();
+	close(socketFd);
+	FD_CLR(socketFd, &this->_master);
+}
+
+std::string Server::recvMessage(int socketFd){
+	char *buf = (char*)calloc(200, sizeof(char));
+	std::string fileStr;
+	int nDataLength;
+
+	while ((nDataLength = recv(socketFd, buf, 200, 0)) > 0) {
+		fileStr.append(buf, nDataLength);
+		if (buf[nDataLength - 1] == '\n')
+			break;
+		bzero((void*)buf, 200);
+	}
+	free(buf);
+	return fileStr;
+}
+
+void Server::socketOption(){ //remove "adress already in use" error msg
+	int yes = 1;
+
+	for (int i = 0; i < (int)this->_listeningSockets.size(); i++){
+		if (setsockopt(this->_listeningSockets[i].getSocketFd(), SOL_SOCKET ,SO_REUSEADDR ,&yes,sizeof yes) == -1){ //remove "adress already in use" error msg
+			perror("setsockopt");
+			exit(1);
+		}
+	}
+}
+void Server::initFdset(){
+	FD_ZERO(&this->_master);
+	FD_ZERO(&this->_readFds);
+	for (int i = 0; i < (int)this->_listeningSockets.size(); i++){
+		FD_SET(this->_listeningSockets[i].getSocketFd(), &this->_master);
+	}
+}
+
+bool Server::isListener(int socketFd){
+	for (int i = 0; i < (int)this->_listeningSockets.size(); i++){
+		if (socketFd == this->_listeningSockets[i].getSocketFd())
+			return true;
+	}
+	return false;
+}
+
+int Server::maxListenerFd(){
+	int maxFd = this->_listeningSockets[0].getSocketFd();
+	for (int i = 0; i < (int)this->_listeningSockets.size(); i++){
+		if (this->_listeningSockets[i].getSocketFd() > maxFd)
+			maxFd = this->_listeningSockets[i].getSocketFd();
+	}
+	return maxFd;
+}
+
+Socket *Server::findListenerFd(int socketFd){
+	for (int i = 0; i < (int)this->_listeningSockets.size(); i++){
+		if (socketFd == this->_listeningSockets[i].getSocketFd())
+			return &this->_listeningSockets[i];
+	}
+	return &this->_listeningSockets[0];
 }
 
 void    Server::perror_exit(std::string str){

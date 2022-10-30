@@ -14,15 +14,16 @@ class Socket {
 		int 				_socketFd;
 		struct sockaddr_in	_address;
 		int					_addrlen;
-		int					_PORT;
 		bool				_isListening;
+		int					_PORT;
 		char				*_requestBuffer;
 
 
 	public:
-		Socket(bool isListening); 	//constructor for server/listening socket
+		Socket(bool isListening, int port); 	//constructor for server/listening socket
 		Socket(Socket * ListeningSocket, bool isListening); 	//constructor for client socket
 		~Socket();
+
 		
 		int		getSocketFd();
 		int		getAddrlen();

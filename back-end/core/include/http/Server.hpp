@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <string>
 #include <string.h>
+#include <sys/time.h>
 #include <sys/socket.h>
 #include <stdlib.h>
 #include <netinet/in.h>
@@ -22,15 +23,27 @@
 class Server {
 	private:
 		std::vector<Socket>		_listeningSockets;
+		fd_set					_master;
+		fd_set					_readFds;
 		Settings				_settingsInfo;
+		struct timeval			_timeout;
 
 	public:
 		Server();
 		~Server();
 
-		void listen_connection();
-		void handle_connection();
-		void perror_exit(std::string str);
+		void 		listenConnection();
+		void 		handleConnection();
+		void 		perror_exit(std::string str);
+		void		acceptConnection(int socketFd, int & fdMax);
+		void		handleRequest(int socketFd);
+		std::string	recvMessage(int socketFd);
+		void 		initFdset();
+		void		initSocket();
+		void 		socketOption(); //goal: remove the "adress already in use" error
+		bool		isListener(int socketFd);
+		int 		maxListenerFd();
+		Socket 		*findListenerFd(int socketFd);
 };
 
 char	*ft_strjoin(char *s, char c);
