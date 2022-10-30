@@ -1,2 +1,0 @@
-repeat = { bool }
-bool = "1" | "0"

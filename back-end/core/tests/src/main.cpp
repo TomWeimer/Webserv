@@ -2,7 +2,8 @@
 
 void all_tests()
 {
-	testSettings();
+	//testSettings();
+	testRequestParsing();
 }
 
 int main()

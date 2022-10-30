@@ -1,4 +1,5 @@
 #include "../../include/http/Request.hpp"
+#include "MyParsing.hpp"
 
 Request::Request(int socketFD, std::string fullRequest){
 	this->_socketFd = socketFD;
@@ -24,6 +25,17 @@ void Request::setRout(){
 void Request::setTokens(){
 	std::stringstream check1(this->_fullRequest);
 	std::string		tmp;
+	size_t pos;
+	Vocabulary tokenHeader("./back-end/conf/HTTP.ebnf");
+	//std::cerr << this->_fullRequest << std::endl;
+	while((pos =_fullRequest.find_first_of('\r')) != std::string::npos)
+	{
+		_fullRequest.erase(pos, 1);
+	}
+	std::cerr << this->_fullRequest << std::endl;
+	Lexer lex(tokenHeader, this->_fullRequest);
+	
+	std::cerr << lex.lexeme() << std::endl;
     while(std::getline(check1, tmp, ' '))
     {
         this->_tokens.push_back(tmp);

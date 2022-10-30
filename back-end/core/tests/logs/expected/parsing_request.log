@@ -1,0 +1,11 @@
+ KeyWord: <request>
+               - <method> GET
+               - <request-target> /favicon.ico
+               - <http_version> HTTP/1.1
+
+ KeyWord: <Host>
+               - <uri-socket> localhost:8080
+
+ KeyWord: <Connection>
+               - <connection-option> keep-alive
+

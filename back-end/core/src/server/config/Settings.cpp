@@ -225,8 +225,12 @@ void Settings::fill_block(BlockParams&  actualBlock, KeyWord& token)
 
 std::ostream& operator<<(std::ostream& out, const Settings& settings)
 {
-	out << settings.get_serverInfo() << std::endl;
-	out << settings.get_locationsList() << std::endl;
+	std::vector<LocationBlock> locationBlock;
+
+	out << settings.get_serverInfo();
+	locationBlock = settings.get_locationsList();
+	if (locationBlock.empty() == false)
+		out << settings.get_locationsList();
 	return (out);
 }
 

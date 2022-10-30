@@ -1,0 +1,25 @@
+<request> = <method> <request-target> <http_version>
+<method> = ( "GET" | "POST" | "DELETE" )
+<request-target> = ( <origin-form> | <absolute-form> )
+<origin-form> = <absolute-path>
+<absolute-form> = <absolute-URI>
+<absolute-path> = <string>
+<absolute-URI>  = <string>
+
+<http_version> = ( "HTTP/1.0" |  "HTTP/1.1" )
+
+<Host> = "Host:" ( <uri-host> | <uri-socket> )
+<uri-host> = <ip_address>
+<uri-socket> = ( <ip_address> | "localhost" ) , ":" , <port>
+
+<Connection> = "Connection:" <connection-option>
+<connection-option> = ( "close" | "keep-alive" )
+
+<ip_address> = <number> , "." , <number> , "." , <number> , "." , <number>
+<port> = <number>
+
+<number> = { <digits> }
+<digits> = ( "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" )
+
+<string> = { <all_character> }
+<all_character> = ?all_visible_character_?

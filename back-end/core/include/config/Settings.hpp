@@ -1,6 +1,6 @@
 #ifndef SETTINGS_HPP
 #define SETTINGS_HPP
-#include "../../../MyParsing/include/MyParsing.hpp"
+#include "MyParsing.hpp"
 #include <iostream>
 #include <vector>
 #include <map>
