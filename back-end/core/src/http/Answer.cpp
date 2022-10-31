@@ -14,7 +14,7 @@ Answer::~Answer(){}
 
 
 void Answer::setFullAnswer(){
-	if (this->_invalid_rout){
+	if (this->_invalid_rout && this->_request->getRequestType() != "POST"){
 		this->invalidRequest("404 Not Found");
 		return;
 	} else {
@@ -22,8 +22,8 @@ void Answer::setFullAnswer(){
 			this->getRequest();
 		else if (this->_request->getRequestType() == "DELETE")
 			this->deleteRequest();
-		else if (this->_request->getRequestType() == "DELETE")
-			this->deleteRequest();
+		else if (this->_request->getRequestType() == "POST")
+			this->postRequest();
 	}
 }
 
@@ -51,22 +51,14 @@ void Answer::deleteRequest(){
 		std::cout << "deleted" << std::endl;
 	else
 		perror("Remove");
-	this->_body = "File deleted";
+	this->_body = "File deleted\n";
 	std::string line = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: ";
 	std::string len = std::to_string(this->_body.size());
 	this->_fullAnswer = line + len + "\n\n" + this->_body;
 }
 
-void Answer::postRequest(){
-	std::ofstream outfile (this->_request->getRout().c_str());
-	size_t pos = this->_request->getFullRequest().find("\n\n");
-	std::string bodyRequest = this->_request->getFullRequest().substr(pos, this->_request->getFullRequest().length() - 1);
-	outfile << bodyRequest;
-	outfile.close();
-	this->_body = "File created";
-	std::string line = "HTTP/1.1 201 Created\nContent-Type: text/plain\nContent-Length: ";
-	std::string len = std::to_string(this->_body.size());
-	this->_fullAnswer = line + len + "\n\n" + this->_body;
+void Answer::postRequest(){ //TODO: check if file already exists
+	//need to have a parser for the body
 }
 
 
