@@ -15,30 +15,43 @@
 #include <vector>
 #include <iomanip>
 #include <sstream>
+#include "utils/Parsing/Lexer.hpp"
+#include <vector>
 
-
-
-class Request {
+class Request
+{
 	private:
-		int								_socketFd;
-		std::string						_fullRequest;
-		std::vector<std::string>		_tokens;
-		std::string 					_requestType;
-		std::string 					_rout;
+		Lexer					_http_lexer;
+		std::string				_full_request;
+		std::vector<KeyWord>	_full_tokens;
+		std::string				_method;
+		std::string				_target;
+		std::string				_version;
+		std::string				_host;
+		std::vector<KeyWord>	_header_field;
+		std::string				_body;
+		int						_socket_fd;
+
 
 	public:
 		Request(int socketFD, std::string fullRequest);
 		~Request();
+	private:
+		std::string	obtain_request_body();
+		void		parse_request();
+		void		assign_tokens();
+		void 		assign_request_tokens(KeyWord* request);
+		void 		assign_host_tokens(KeyWord* request);
+		void 		assign_other_tokens(KeyWord* request);
+		void		check_request_validity();
 
-		void		setRout();
-		void		setRequestType();
-		void		setFullRequest();
-		void		setTokens();
+		
+	
+	public:
+		std::string	getFullRequest();
+		int			getSocketFd();
 		std::string getRout();
 		std::string getRequestType();
-		int			getSocketFd();
 };
-
-char	*get_file(int fd);
 
 #endif

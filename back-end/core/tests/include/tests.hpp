@@ -2,7 +2,7 @@
 #define TESTS_HPP
 #include <iostream>
 #include "Logfile.hpp"
-#include "Lexer.hpp"
+#include "utils/Parsing/Lexer.hpp"
 
 #define RESET   "\033[0m"  
 #define RED     "\033[31m"  

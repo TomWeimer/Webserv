@@ -1,4 +1,4 @@
-#include "Vocabulary.hpp"
+#include "utils/Parsing/Vocabulary.hpp"
 
 Vocabulary::Vocabulary(std::string filename)
 {

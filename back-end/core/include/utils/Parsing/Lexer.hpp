@@ -122,7 +122,7 @@ private:
 public:
 // Constructor
 	Lexer(const Vocabulary &vocabulary, const Input& InputContent);
-	Lexer(const Vocabulary &vocabulary, std::string InputContent);
+	Lexer(const Vocabulary &vocabulary, std::string InputContent = "");
 	Lexer(std::string grammarFileName, std::string inputFileName);
 // Copy Constructor
 	Lexer(const Lexer &origin);

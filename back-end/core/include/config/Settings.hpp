@@ -1,6 +1,6 @@
 #ifndef SETTINGS_HPP
 #define SETTINGS_HPP
-#include "Lexer.hpp"
+#include "utils/Parsing/Lexer.hpp"
 #include <iostream>
 #include <vector>
 #include <map>

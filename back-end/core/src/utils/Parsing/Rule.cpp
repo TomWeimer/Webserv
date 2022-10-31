@@ -1,4 +1,4 @@
-#include "../../include/Rule.hpp"
+#include "utils/Parsing/Rule.hpp"
 #include<cstdlib>
 Rule::Rule(std::string rule, std::string rule_name)
 	:  _name(rule_name), _rule(rule)

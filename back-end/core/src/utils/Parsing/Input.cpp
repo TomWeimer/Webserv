@@ -1,4 +1,4 @@
-#include "Input.hpp"
+#include "utils/Parsing/Input.hpp"
 
 Input::Input()
 	: _size_check(true) {}

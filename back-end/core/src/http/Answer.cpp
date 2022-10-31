@@ -4,6 +4,7 @@ Answer::Answer(Request *request){
 	this->_invalid_rout = false;
 	this->_request = request;
 	this->setFullAnswer();
+	std::cerr << _request->getRout() << std::endl;
 	if (this->_invalid_rout)
 		std::cout << "INVALID ROUT" << std::endl;
 	else
@@ -16,8 +17,15 @@ void Answer::setFullAnswer(){
 	std::ifstream	file;
 	std::string		file_content, line;
 	std::string		full_answer;
+	std::string root;
+	std::string target;
 
-	file.open(this->_request->getRout().c_str());
+	root = "front-end/html/";
+	target = root;
+	target += this->_request->getRout();
+	
+
+	file.open(target.c_str());
 	if (!file.is_open()){
 		this->_fullAnswer = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 15\n\nPage not found!";
 		this->_invalid_rout = true;

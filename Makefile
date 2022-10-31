@@ -18,23 +18,23 @@ SRC	:=	src/http/Answer.cpp\
 		src/server/Socket.cpp\
 		src/server/config/Settings.cpp\
 		src/utils/utils.cpp\
-
-SRC_PARSER := src/MyParsing/src/Lexer/Vocabulary.cpp src/MyParsing/src/Lexer/Lexer.cpp src/MyParsing/src/Lexer/Input.cpp  src/MyParsing/src/Lexer/Rule.cpp
+		src/utils/Parsing/Vocabulary.cpp\
+		src/utils/Parsing/Lexer.cpp\
+		src/utils/Parsing/Input.cpp\
+		src/utils/Parsing/Rule.cpp
 
 SRC_MAIN = src/main.cpp
 
 SRC_MAIN += $(SRC)
-SRC_MAIN += $(SRC_PARSER)
 
 SRC_TEST = tests/src/main.cpp tests/src/testSettings.cpp tests/src/test-utils.cpp tests/src/Logfile.cpp tests/src/test_http_parsing.cpp
 SRC_TEST += $(SRC)
-SRC_TEST += $(SRC_PARSER)
 		
 
 # Src directory
 SRC_DIR		:=	./back-end/core/
 # Subdirectories of src
-SRCS_SUBDIR := ./back-end/core/src ./back-end/core/src/http ./back-end/core/src/server ./back-end/core/src/server/config ./back-end/core/src/utils ./back-end/core/src/http ./back-end/core/tests/src ./back-end/core/src/MyParsing/src/Lexer 
+SRCS_SUBDIR := ./back-end/core/src ./back-end/core/src/http ./back-end/core/src/server ./back-end/core/src/server/config ./back-end/core/src/utils ./back-end/core/src/http ./back-end/core/tests/src ./back-end/core/src/utils/Parsing
 
 # Full paths sources
 SRCS			:= $(addprefix $(SRC_DIR), $(SRC_MAIN))

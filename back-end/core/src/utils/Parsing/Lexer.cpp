@@ -1,4 +1,4 @@
-#include "Lexer.hpp"
+#include "utils/Parsing/Lexer.hpp"
 #include <cstdlib>
 
 std::vector<KeyWord> Lexer::lexeme()
@@ -286,7 +286,7 @@ Lexer &Lexer::operator=(const Lexer &origin)
 }
 
 void Lexer::set_input(std::string input) {
-	_input = input;
+	_input.set_content(input);
 }
 Lexer::~Lexer() {}
 
@@ -368,7 +368,8 @@ Lexer::Lexer(const Vocabulary &vocabulary, const Input &otherInput)
 Lexer::Lexer(const Vocabulary &vocabulary, std::string InputContent)
 	: _rules(vocabulary), _input()
 {
-	_input.set_content(InputContent);
+	if (InputContent.empty() == false)
+		_input.set_content(InputContent);
 	match_content.insert(std::make_pair(STRING, &Lexer::compare_string));
 	match_content.insert(std::make_pair(TOKEN,  &Lexer::compare_token));
 	match_content.insert(std::make_pair(CONCATENATION,  &Lexer::compare_concatenation));

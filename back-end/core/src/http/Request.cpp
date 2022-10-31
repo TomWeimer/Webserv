@@ -1,55 +1,89 @@
 #include "../../include/http/Request.hpp"
-#include "Lexer.hpp"
+#include "utils/Parsing/Lexer.hpp"
 
-Request::Request(int socketFD, std::string fullRequest){
-	this->_socketFd = socketFD;
-	this->_fullRequest = fullRequest;
-	this->setTokens();
-	this->setRequestType();
-	this->setRout();
+
+Request::Request(int socketFD, std::string fullRequest)
+	: _http_lexer(Vocabulary("./back-end/conf/HTTP.ebnf")),
+	_full_request(fullRequest), _socket_fd(socketFD)
+{
+	_body = obtain_request_body();
+	parse_request();
 }
 
-Request::~Request(){}
-
-void Request::setRequestType(){
-	this->_rout = this->_tokens[0];
-	std::cout << "ROUT: " << this->_rout << std::endl;
-}
-
-void Request::setRout(){
-	this->_tokens[1].erase(0, 1);
-	this->_rout = this->_tokens[1];
-	std::cout << "ROUT: " << this->_rout << std::endl;
-}
-
-void Request::setTokens(){
-	std::stringstream check1(this->_fullRequest);
-	std::string		tmp;
+std::string Request::obtain_request_body()
+{
 	size_t pos;
-	Vocabulary tokenHeader("./back-end/conf/HTTP.ebnf");
-	//std::cerr << this->_fullRequest << std::endl;
-	while((pos =_fullRequest.find_first_of('\r')) != std::string::npos)
+
+	pos = _full_request.find("\r\n\r\n");
+	if (pos == std::string::npos)
 	{
-		_fullRequest.erase(pos, 1);
+		_http_lexer.set_input(_full_request);
+		return ("");
 	}
-	std::cerr << this->_fullRequest << std::endl;
-	Lexer lex(tokenHeader, this->_fullRequest);
-	
-	std::cerr << lex.lexeme() << std::endl;
-    while(std::getline(check1, tmp, ' '))
-    {
-        this->_tokens.push_back(tmp);
-    }
+	_http_lexer.set_input(_full_request.substr(0, pos - 1));
+	return (_full_request.substr(pos + 3));
 }
+
+void Request::parse_request()
+{
+	_http_lexer.set_input(_full_request);
+	_full_tokens = _http_lexer.lexeme();
+	assign_tokens();
+}
+
+void Request::assign_tokens()
+{
+	KeyWord *actualToken;
+	for (size_t i = 0; i < _full_tokens.size(); i++)
+	{
+		actualToken = &_full_tokens[i];
+		
+		if (actualToken->tokenType == "<request>")
+			assign_request_tokens(actualToken);
+		else if (actualToken->tokenType == "<Host>")
+			assign_host_tokens(actualToken);
+		else
+			assign_other_tokens(actualToken);
+	}
+}
+
+void Request::assign_request_tokens(KeyWord* request)
+{
+	_method = request->args[0].valueToken;
+	_target = request->args[1].valueToken;
+	_version = request->args[2].valueToken;	
+}
+
+void Request::assign_host_tokens(KeyWord* host)
+{	
+	_host = host->args[0].valueToken;
+}
+
+void Request::assign_other_tokens(KeyWord* other)
+{
+	if (other != NULL)
+	{
+		_header_field.push_back(*other);
+	}
+}
+
 
 std::string Request::getRequestType(){
-	return this->_requestType;
+	return this->_method;
 }
 
 std::string Request::getRout(){
-	return this->_rout;
+	std::cerr << _target << std::endl;
+	return this->_target;
 }
 
+
 int	Request::getSocketFd(){
-	return this->_socketFd;
+	return this->_socket_fd;
 }
+
+std::string	Request::getFullRequest(){
+	return this->_full_request;
+}
+
+Request::~Request(){}
