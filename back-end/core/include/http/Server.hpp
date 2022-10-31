@@ -16,7 +16,8 @@
 #include "Answer.hpp"
 #include "Socket.hpp"
 #include <vector>
-#include "../config/Settings.hpp"
+#include "utils/utils.hpp"
+#include "config/Settings.hpp"
 
 // #define PORT 8080
 
@@ -34,6 +35,7 @@ class Server {
 
 		void 		listenConnection();
 		void 		handleConnection();
+		void		handleTimeout(int fdMax);
 		void 		perror_exit(std::string str);
 		void		acceptConnection(int socketFd, int & fdMax);
 		void		handleRequest(int socketFd);
