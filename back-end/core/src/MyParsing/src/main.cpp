@@ -1,14 +1,14 @@
 #include "Vocabulary.hpp"
 #include "Lexer.hpp"
 #include "Input.hpp"
-#include "config/Settings.hpp"
 
 int main()
 {
 	Lexer lexer("rules.ebnf", "input.conf");
-	Settings OUF (lexer.lexeme());
+	std::cerr << lexer.lexeme();
+//	std::cerr << "OUIOUT" << std::endl;
 
-	std::cerr << OUF << std::endl;
+	//std::cerr << OUF << std::endl;
 }
 // std::vector<KeyWord> v;
 // 	std::vector<KeyWord>::iterator first;

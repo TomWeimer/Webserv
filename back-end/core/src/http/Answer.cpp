@@ -17,7 +17,7 @@ void Answer::setFullAnswer(){
 	std::string		file_content, line;
 	std::string		full_answer;
 
-	file.open(this->_request->getRout());
+	file.open(this->_request->getRout().c_str());
 	if (!file.is_open()){
 		this->_fullAnswer = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 15\n\nPage not found!";
 		this->_invalid_rout = true;
@@ -29,9 +29,16 @@ void Answer::setFullAnswer(){
 		}
 		file.close();
 		this->_fullAnswer = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: "
-					+ std::to_string(file_content.size()) + "\n\n" + file_content; 
+					+ NumberToString(file_content.size()) + "\n\n" + file_content; 
 	}
 }
+
+  std::string Answer::NumberToString ( size_t Number )
+  {
+     std::ostringstream ss;
+     ss << Number;
+     return ss.str();
+  }
 
 void Answer::sendAnswer(){
 	send(this->_request->getSocketFd(), this->_fullAnswer.c_str(), this->_fullAnswer.size(), 0);

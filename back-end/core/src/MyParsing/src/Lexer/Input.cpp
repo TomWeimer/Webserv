@@ -1,237 +1,246 @@
 #include "Input.hpp"
 
-void Input::openFile(std::ifstream& file, std::string& filename)
+Input::Input()
+	: _size_check(true) {}
+
+Input::Input(std::string filename)
+	: _size_check(true)
 {
-	file.open(filename.c_str());
-	if (file.good() == false)
-		throw (std::runtime_error("The config file could'nt be opened\n"));
+	std::string content;
+
+	content = content_from_file(filename);
+	formatInput(content);
 }
 
-std::string Input::readFile(std::ifstream& file)
+std::string Input::content_from_file(std::string filename)
 {
-	std::string line;
+
+	std::ifstream file;
 	std::string fileContent;
 
-	while (getline(file, line))
-	{
-		fileContent += line;
-		if (file.peek() != EOF)
-			fileContent += "\n";	
-	}
-	file.close();
+	open_file(file, filename);
+	read_file(file, fileContent);
+	close_file(file);
 	return (fileContent);
 }
 
-void Input::createInputFromFile(std::string filename)
+void Input::open_file(std::ifstream &file, std::string filename)
 {
-	std::ifstream file;
-
-	openFile(file, filename);
-	_content = readFile(file);
-}
-Input::Input()
-{
+	file.open(filename.c_str());
+	if (file.good() == false)
+		throw (InputException("The config file couldn't be opened\n"));
 }
 
-Input::Input(std::string filename)
+void Input::read_file(std::ifstream &file, std::string &fileContent)
 {
-	// std::cerr << "YOLOL" << std::endl;
-	createInputFromFile(filename);
-	_pos = _content.begin();
-	_last = _content.end();
-	// std::cerr <<  "p[1]: " << *_pos << std::endl;
+	fileContent.assign(ifstream_it(file), ifstream_it());
+	if (fileContent.empty() == true)
+		throw (InputException("The config file was empty!\n"));
 }
 
-Input::Input(const Input& otherInput)
-	: _content(otherInput.get_content())
+void Input::close_file(std::ifstream &file)
 {
-	_pos = _content.begin();
-	_last = _content.end();
+	file.close();
 }
 
-Input& Input::operator=(const Input& otherInput)
+void Input::formatInput(std::string &content)
 {
-	if (this == &otherInput)
-		return (*this);
-	_content = otherInput.get_content();
-	return (*this);
+	_word_nb = 0;
+	_line_nb = 0;
+	_wordList.clear();
+	_lineList.clear();
+	erase_semicolon(content);
+	format_newline(content);
+	split_content(content);
+	erase_extra_whitespace();
 }
-Input::~Input() {}
+
+void Input::erase_semicolon(std::string &content)
+{
+	size_t pos;
+
+	pos = content.find(';');
+	while (pos != std::string::npos)
+	{
+		content.erase(pos, 1);
+		pos = content.find(';');
+	}
+}
+
+void Input::format_newline(std::string &content)
+{
+	size_t pos;
+
+	pos = content.find("\r\n");
+	while (pos != std::string::npos)
+	{
+		content.erase(pos, 1);
+		pos = content.find("\r\n");
+	}
+}
+
+void Input::split_content(std::string &content)
+{
+	std::string line;
+	std::stringstream inputContent(content);
+
+	while (std::getline(inputContent, line))
+	{
+		if (is_empty_line(line) == false)
+			_lineList.push_back(line);
+	}
+}
+
+void Input::erase_extra_whitespace()
+{
+	std::string tmp;
+	std::string actualLine;
+	std::stringstream lineStream;
+
+	for (size_t index = 0; index < _lineList.size(); index++)
+	{
+		actualLine = _lineList[index];
+		lineStream.clear();
+		for (size_t i = 0; std::isspace(actualLine[i]) == true; i++)
+		{
+			actualLine.erase(i, 1);
+		}
+		for (size_t i = actualLine.size() - 1; std::isspace(actualLine[i]) == true; i--)
+		{
+			actualLine.erase(i, 1);
+		}
+	//	std::cerr << "actualine: ->" << actualLine << "<-" << std::endl;
+		lineStream << actualLine;
+	
+		//std::cerr << "actualine: " << actualLine << std
+		actualLine.clear();
+		//std::cerr << "actualine: " << actualLine << std::endl;
+		for (; lineStream.eof() == false;)
+		{
+			lineStream >> tmp;
+			actualLine += tmp;
+			if (lineStream.eof() == false)
+				actualLine += " ";
+		}
+		lineStream.clear();
+		tmp.clear();
+		//std::cerr << "actualine: ->" << actualLine << "<-" << std::endl;
+		_lineList[index].swap(actualLine);
+		
+		actualLine.clear();
+		lineStream.clear();
+	}
+}
+
+bool Input::is_empty_line(std::string& line)
+{
+	for (std::string::iterator it = line.begin(); it != line.end() ; it++)
+	{
+		if (std::isspace(*it) == false)
+			return (false);
+	}
+	return (true);
+}
+
 
 std::string Input::next_line()
 {
-	std::string::iterator	tmp;
-	std::string				rtn;
+	std::string line;
 
-	if (_pos == _last)
+	if (_line_nb == _lineList.size())
+	{
+		_wordList.clear();
 		return ("");
-	tmp = _pos;
-	skip_until(_pos, _last, '\n');
-	rtn.insert(rtn.begin(), tmp, _pos);
-	if (_pos != _last)
-		_pos++;
-	return (rtn);
-}
-
-std::string::iterator Input::begin() {
-	return (_content.begin());
-}
-
-std::string::const_iterator Input::begin()const {
-	return (_content.begin());
-}
-
-std::string::iterator Input::end() {
-	return (_content.end());
-}
-
-std::string::const_iterator Input::end()const {
-	return (_content.end());
-}
-
-void Input::append(std::string word)
-{
-	_content.append(" ");
-	_content.append(word);
-}
-
-void Input::fill(std::string filename)
-{
-	std::ifstream	file;
-	std::string		line;
-	std::string		fileContent;
-
-	file.open(filename.c_str());
-	if (file.good() == false)
-		throw (std::runtime_error("The config file could'nt be opened\n"));
-	while (getline(file, line))
-	{
-		fileContent += line;
 	}
-	file.close();
-	_content = fileContent;
-	
+	line = _lineList[_line_nb];
+	_line_nb++;
+	split_line(line);
+	_word_pos = _wordList[0].begin();
+	_word_end = _wordList[0].end();
+	_size_check = true;
+	return (line);
 }
 
-std::string Input::nextWord(void)
+std::string Input::nextWord(std::string::iterator pos, std::string::iterator last)
 {
-	std::string::iterator start;
-	std::string::iterator endWord;
+	std::string word;
 
-	if (_pos == _last)
+	if (pos >= last)
 		return ("");
-	endWord = start = _pos;
-	
-	if (std::isspace(*start) == true)
+	for (;pos != last && std::isspace(*pos) == true; pos++)
+	{}
+	for (;pos != last && std::isspace(*pos) == false; pos++)
 	{
-		skip_while_space(endWord, _last);
-		//return (" ");
+		word += *pos;
 	}
-	skip_until_space(endWord, _last);
-	return (new_token(start, endWord));
+	return (word);
 }
 
-void Input::eraseWord(size_t size)
+void Input::split_line(std::string line)
 {
-	//std::cerr << "size: " << size << std::endl;
-	_content.erase(0, size);
-}
+	std::string word;
+	std::stringstream streamline(line);
 
-void Input::clear_until_pos()
-{
-	size_t distance;
-
-	distance = _pos - _content.begin();
-
-	if (_pos != _last)
+	_wordList.clear();
+	while (std::getline(streamline, word, ' '))
 	{
-		_content.erase(0, distance);
+		_wordList.push_back(word);
 	}
-	else
-		_content.clear();
-	_pos = _content.begin();
-	_last = _content.end();
+
 }
 
 
-bool Input::empty(void)
+std::string Input::operator[](size_t index)
 {
-	return (_content.empty());
+	if (index >= _lineList.size())
+		return ("");
+	return (_lineList[index]);
 }
 
+size_t	Input::compare_value(std::string value, std::string::iterator pos, std::string::iterator last)
+{
+	std::string word;
+	word = nextWord(pos, last);
+	//std::cerr << "word: ->" << word  << "<- value: ->" << value  << "<-" << std::endl;
+	//std::cerr << value.size() << std::endl;
+	if (strncmp(word.c_str(), value.c_str(), value.size()) == 0)
+	{
+	//	std::cerr << "newWord: " << word << std::endl;
+		if (_size_check == true && word.size() != value.size())
+			return(0);
+		return (value.size());
+	}
+	return (0);
+}
 void Input::set_content(std::string newContent)
 {
-	_content = newContent;
-	_pos = _content.begin();
-	_last = _content.end();
+	formatInput(newContent);
 }
-
-const std::string Input::get_content(void)const
+Input::Input(const Input &otherInput)
+	: _lineList(otherInput._lineList), _wordList(otherInput._wordList),
+	  _line_nb(otherInput._line_nb), _word_nb(otherInput._word_nb)
 {
-	return (_content);
 }
 
-std::string Input::get_content(void)
+void Input::size_check_on(bool on)
 {
-	return (_content);
+	_size_check = on;
 }
 
-std::string::const_iterator Input::get_pos(void)const
+bool Input::get_size_check()
 {
-	return (_pos);
+	return (_size_check);
 }
 
-std::string::iterator Input::get_pos(void)
+Input &Input::operator=(const Input &otherInput)
 {
-	return (_pos);
+	if (this == &otherInput)
+		return (*this);
+	_lineList = otherInput._lineList;
+	_wordList = otherInput._wordList;
+	_line_nb = otherInput._line_nb;
+	_word_nb = otherInput._word_nb;
+	return (*this);
 }
 
-std::string Input::restLine()
-{
-	// std::cerr << "p[]: |" <<  *(_pos - 1) << "|" << std::endl;
-	// std::cerr <<  *_content.begin() << std::endl;
-	return (std::string(_pos, _last));
-}
-
-void Input::advance(size_t nb)
-{
-	while (nb > 0)
-	{
-		if (std::isspace(*_pos) == false)
-			nb--;
-		_pos++;
-	}
-}
-
-void Input::move_pos(size_t nb)
-{
-	while (nb > 0)
-	{
-		nb--;
-		_pos++;
-	}
-}
-
-char Input::peek()
-{
-	return (*(_pos));
-}
-
-std::string 	createInputFromFile(std::string filename)
-{
-	std::ifstream	file;
-	std::string		line;
-	std::string		fileContent;
-
-	file.open(filename.c_str());
-	if (file.good() == false)
-		throw (std::runtime_error("The config file could'nt be opened\n"));
-	while (getline(file, line))
-	{
-		fileContent += line;
-		if (file.peek() != EOF)
-			fileContent += "\n";	
-	}
-	file.close();
-	return(fileContent);
-}
+Input::~Input() {}

@@ -19,6 +19,28 @@ Vocabulary& Vocabulary::operator=(const Vocabulary& origin)
 
 Vocabulary::~Vocabulary() {}
 
+std::string Vocabulary::content(size_t i)
+{
+	std::string ruleName;
+	std::string ruleContent;
+
+	if (i >= _names.size())
+		return ("");
+	ruleName = _names[i];
+	ruleContent = _rules[ruleName];
+	return (ruleContent);
+}
+
+std::string Vocabulary::name(size_t i)
+{
+	std::string ruleName;
+
+	if (i >= _names.size())
+		return ("");
+	ruleName = _names[i];
+	return (ruleName);
+}
+
 void Vocabulary::createVocabulary(std::string filename)
 {
 	std::ifstream file;
@@ -45,15 +67,18 @@ void Vocabulary::createNewEntry(std::ifstream& file, int index)
 	std::string name;
 	std::string rule;
 	std::string tmp;
-	
 
 	file >> name;
+	if (index == 0 && name.empty() == true)
+		throw (std::runtime_error("The .ebnf file was empty!\n"));
 	// skip '='
 	file >> tmp;
 	tmp.clear();
 	std::getline(file, rule);
-	this->_names.insert(std::make_pair(index, name));
-	this->_rules.insert(std::make_pair(name, rule));
+	if (name.empty() == false)
+		this->_names.insert(std::make_pair(index, name));
+	if (rule.empty() == false)
+		this->_rules.insert(std::make_pair(name, rule));
 }
 
 Vocabulary::iterator Vocabulary::begin()

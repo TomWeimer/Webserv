@@ -19,6 +19,8 @@ class Vocabulary
 	Vocabulary(const Vocabulary& origin);
 	Vocabulary& operator=(const Vocabulary& origin);
 	~Vocabulary();
+	std::string content(size_t i);
+	std::string name(size_t i);
 	
 
 

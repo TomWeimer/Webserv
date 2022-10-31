@@ -28,6 +28,7 @@ class Answer {
 
 		void	setFullAnswer();
 		void	sendAnswer();
+		std::string NumberToString ( size_t Number );
 };
 
 

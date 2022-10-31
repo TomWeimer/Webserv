@@ -1,512 +1,275 @@
 #include "Lexer.hpp"
 #include <cstdlib>
 
-Lexer::Lexer(std::string grammarFileName, std::string inputFileName)
-	: _rules(Vocabulary(grammarFileName)), _input(inputFileName) {}
-
-Lexer::Lexer(const Vocabulary &vocabulary, const Input &otherInput)
-	: _rules(vocabulary), _input(otherInput) {}
-
-Lexer::Lexer(const Vocabulary &vocabulary, std::string InputContent)
-	: _rules(vocabulary), _input() {
-	_input.set_content(InputContent);
-}
-
 std::vector<KeyWord> Lexer::lexeme()
 {
-	std::string line;
-	std::string ruleName;
-	std::string ruleContent;
-	bool ok;
-
-	line = _input.next_line();
-	while (line.empty() == false)
+	std::string	name;
+	
+	_line = _input[0];
+	for (size_t i = 1; _line.empty() == false; i++)
 	{
-		ok = false;
-		for (size_t i = 0; i < line.size(); i++)
+		for (size_t j = 0; j < _rules.size(); j++)
 		{
-			if (std::isspace(line[i]) == false)
+			name = _rules[j];
+			_pos = _line.begin();
+			if (match_rule(name, _rules[name]) == true)
 			{
-				ok = true;
-				break;
+				_list.push_back(_actual_token);
+				break ;
 			}
 		}
-		if (ok == true)
-		{
-			for (size_t ruleIndex = 0; ruleIndex < _rules.size() && line.empty() == false; ruleIndex++)
-			{
-				ruleName = _rules[ruleIndex];
-				ruleContent = _rules[ruleName];
-				if (match_rule(line, ruleContent, ruleName) == true)
-					break ;
-			}
-		}
-		line = _input.next_line();
+		_line = _input[i];
 	}
 	return (_list);
 }
 
-
-bool Lexer::match_rule(std::string& line, std::string& rule, std::string tokenName)
+bool Lexer::match_rule(std::string ruleName, std::string ruleContent)
 {
-	Input	inputLine;
-	Rule	actualRule;
+	Rule	rule(ruleContent, ruleName);
 	bool	result;
-	KeyWord	newToken;
-//	std::vector<std::string> match_reserve;
-//	std::vector<std::string> match_value;
 
-	inputLine.set_content(line);
-	actualRule.set_content(rule);
-	#ifdef DEBUG
-	std::cerr << "\nRULE:	" << BOLDYELLOW << tokenName << RESET << std::endl;
-	std::cerr << "––––––––––––––––––––––––––––––––––––––––––––––––" << std::endl;
-	#endif
-	newToken.tokenType = tokenName;
-	while (inputLine.empty() == false && actualRule.empty() == false)
+	//rule.printBT();
+	result = naviguate_in_tree(rule.get_root());
+	if (ruleName.empty() == false && result == true)
 	{
-		copyInputLine = inputLine.get_content();
-		_actualToken = tokenName;
-		result = match_word(inputLine, actualRule);
-		if (_actualToken != tokenName)
+		if (_input.get_size_check() == true && _pos != _line.end())
+			result = false;
+	}	
+	if (result == true )
+		return (new_keyword(rule));
+	return (false);
+}
+
+bool Lexer::new_keyword(Rule& rule)
+{
+	token *root;
+	root = rule.get_root();
+	_actual_token.clear();
+	_actual_token.tokenType = rule.name();
+	new_token(root);
+	_list_tmp.push_back(_actual_token);
+	return (true);
+}
+
+
+void Lexer::new_token(token *node)
+{
+	
+
+	if (node == NULL)
+		return ;
+	if (node->type == TOKEN )
+	{
+		if (node->input_value.empty() == false)
+			_actual_token.args.push_back(Token(node->value, node->input_value));
+	}
+	if (node->type == REPEAT && node->input_value.empty() == false)
+	{
+		std::stringstream split(node->input_value);
+		std::string tmp;
+
+		while (getline(split, tmp, ' '))
 		{
-			_tokenValue = copyInputLine.substr(0, copyInputLine.size() - inputLine.get_content().size());
-			// std::cerr << "->" << tokenName << "<-" << std::endl;
-			// std::cerr << "->" << new_keyWord(_tokenValue.begin(), _tokenValue.end()) << "<-" << std::endl;
-			newToken.args.insert(newToken.args.end(), Token( _actualToken , new_keyWord(_tokenValue.begin(), _tokenValue.end())));
-			
+			if (tmp.empty() == false)
+				_actual_token.args.push_back(Token(node->value, tmp));	
 		}
-		_tokenValue.clear();
-		if (result == false)
-			break;
 	}
-	if (result == true && (inputLine.empty() == false || actualRule.empty() == false))
+	if (node->left != NULL)
+		new_token(node->left);
+	if (node->right != NULL)
+		new_token(node->right);
+}
+
+bool Lexer::naviguate_in_tree(token *node)
+{
+	bool result;
+
+	if (node == NULL)
+		return (false);
+	result = (this->*match_content[node->type])(node);
+	if (node->type != CONCATENATION && node->type != CHOICE)
 	{
-		result = false;
-	#ifdef DEBUG
-		if (actualRule.empty() == false)
-			std::cerr << "rule not empty: ->" << actualRule.get_content() << "<-" << std::endl; 
-		if (inputLine.empty() == false)
-			std::cerr << "input not empty: ->" << inputLine.get_content() << "<-" << std::endl; 
-	#endif
+		if (node->left != NULL && result == true)
+		{
+			result = naviguate_in_tree(node->left);
+		}
+		if (node->right != NULL && result == true)
+		{
+			result = naviguate_in_tree(node->right);
+		}
 	}
+	return (result);
+}
+
+void Lexer::advance_pos(size_t size)
+{
+	while (_pos != _line.end() && size > 0)
+	{
+		_pos++;
+		size--;
+	}
+}
+
+std::string::iterator Lexer::start_pos()
+{
+	while (_pos != _line.end() && std::isspace(*_pos) == true)
+	{
+		_pos++;
+	}
+	return (_pos);
+}
+
+bool Lexer::compare_string(token *node)
+{
+	size_t size;
+	std::string::iterator start;
+	std::string::iterator last;
+
+	start = start_pos();
+	last = _line.end();
+	size = _input.compare_value(node->value, _pos, last);
+	if (size > 0)
+		advance_pos(size);
+	return (size != 0);
+}
+
+bool Lexer::compare_token(token *node)
+{
+	std::string ruleContent;
+	bool		result;
+	std::string::iterator start;
+
+	ruleContent = _rules[node->value];
+	if (ruleContent.empty() == true)
+		return (false);
+	start = start_pos();
+	result = match_rule("", ruleContent);
 	if (result == true)
 	{
-		_list.insert(_list.end(), newToken);		
-	}
-	#ifdef DEBUG
-	std::cerr << "––––––––––––––––––––––––––––––––––––––––––––––––" << std::endl;
-	result ? std::cerr <<  BOLDGREEN << "rule match " << BOLDYELLOW << tokenName : std::cerr << BOLDRED << "rule not match  " << BOLDYELLOW << tokenName;
-	std::cerr << RESET << std::endl;
-	#endif
-	//exit(1);
-	return (result);
-}
-
-
-bool Lexer::match_rule(Input& inputLine, Rule& actualRule)
-{
-	bool	result;
-
-	while (inputLine.empty() == false && actualRule.empty() == false)
-	{
-		result = match_word(inputLine, actualRule);
-		if (result == false)
-			break;
-	
-	}
-
-	return (result);
-}
-
-
-
-
-bool Lexer::match_subrule(Input& inputLine, Rule& actualRule)
-{
-	bool result;
-
-	while (inputLine.empty() == false && actualRule.empty() == false)
-	{
-		result = match_word(inputLine, actualRule);
-
-	}
-	return (result);
-}
-
-
-bool Lexer::match_word(Input& inputLine, Rule& actualRule)
-{
-	
-	Operator	op;
-	bool		result;
-
-	op = actualRule.next_operator();
-	result = false;
-	if (op > 0)
-	{
-		if (op == SECONDQUOTE)
-			result = match_string(inputLine, actualRule);
-		else if (op == CONCATENATION)
-			result = match_concatenation(inputLine, actualRule);
-		else if (op == GROUPSTART)
-			result = match_group(inputLine, actualRule);
-		else if (op == REPEATSTART)
-			result = match_repeat(inputLine, actualRule);
-		else if (op == CHOICE)
-		{
-			result = match_choice(inputLine, actualRule);
-		}
-		else if (op == SPECIAL)
-			result = match_special(inputLine, actualRule);
-		else if (op == TOKENSTART)
-		{
-			result = match_token(inputLine, actualRule);	
-		}
-	}
-	return (result);
-}
-
-bool Lexer::match_token(Input& inputLine, Rule& actualRule)
-{
-	Input		newInput;
-	Rule		tokenRule;
-	std::string tokenName;
-	bool		result;
-
-	tokenName = actualRule.nextWord();
-	actualRule.advance(tokenName.size());
-	actualRule.clear_until_pos();
-
-	#ifdef DEBUG
-	std::cerr << "\nTOKEN: " << BLUE << tokenName << RESET << std::endl;
-	#endif
-	tokenRule.set_content(_rules[tokenName]);
-	newInput.set_content(inputLine.restLine());
-	// std::string restline = inputLine.restLine();
-	// std::string rule = _rules[tokenName];
-	if (match_rule(newInput, tokenRule) == true)
-	{
-		_actualToken = tokenName;
-		size_t size;
-		size =  inputLine.get_content().size() - newInput.get_content().size();
-		inputLine.move_pos(size);
-		inputLine.clear_until_pos();
-		result = true;
-	}
-	else
-		result = false;
-	#ifdef DEBUG
-	std::cerr << "match_token: <" << BLUE << tokenName << RESET << "> ";
-	result ? std::cerr << GREEN << "	match"  : std::cerr <<  RED << "	not match";
-	std::cerr << RESET << std::endl;
-	#endif
-	return (result);
-
-}
-
-bool Lexer::match_string(Input& inputLine, Rule& actualRule)
-{
-	
-	std::string ruleString;
-	std::string inputString;
-	bool		result;
-
-	ruleString = actualRule.get_next_string();
-	inputString = inputLine.nextWord();
-
-	#ifdef DEBUG
-	std::cerr << "match_string: "<< "L:" << ruleString << inputString;
-	#endif
-	
-	if (strncmp(ruleString.c_str(), inputString.c_str() , ruleString.size()) == 0)
-	{
-		inputLine.advance(ruleString.size());
-		inputLine.clear_until_pos();
-		result = true;
-	}
-	else
-		result = false;
-	actualRule.advance(ruleString.size() + 2);
-	actualRule.clear_until_pos();
-	#ifdef DEBUG
-	result ? std::cerr << GREEN << "		match"  : std::cerr << RED << "		not match";
-	std::cerr << RESET << std::endl;
-	#endif
-	return (result);
-}
-
-bool Lexer::match_concatenation(Input& inputLine, Rule& actualRule)
-{
-	bool result;
-	std::string lhs;
-	std::string rhs;
-
-	lhs = actualRule.nextWord();
-	actualRule.advance(lhs.size());
-	actualRule.clear_until_pos();
-
-	if (lhs == ",")
-	{
-		rhs = actualRule.nextWord();
-		actualRule.advance(rhs.size());
-		actualRule.clear_until_pos();
-		result = make_concatenation(inputLine, "", rhs);
-	}
-	else
-	{
-		actualRule.advance(actualRule.nextWord().size());
-		actualRule.clear_until_pos();
-		rhs = actualRule.nextWord();
-		actualRule.advance(rhs.size());
-		actualRule.clear_until_pos();
-		result = make_concatenation(inputLine, lhs, rhs);
-	}
-	
-	return (result);
-}
-
-bool Lexer::make_concatenation(Input& inputLine, std::string lhs, std::string rhs)
-{
-	Rule		newRule;
-	bool		result;
-
-	#ifdef DEBUG
-	std::cerr << "match_concatenation:		" << std::endl;
-	#endif
-	if (lhs.empty() == false)
-	{
-		newRule.set_content(lhs);
-		result = match_word(inputLine, newRule);
-	}
-	else
-		result = true;
-	if (result == true && std::isspace(inputLine.peek()) == false)
-	{
-		newRule.set_content(rhs);
-		result = match_word(inputLine, newRule);
-	}
-	else
-		result = false;
-	return (result);
-}
-
-bool Lexer::make_choice(Input& inputLine, std::string lhs, std::string rhs)
-{
-	Rule		newRule;
-	bool		result;
-
-	#ifdef DEBUG
-	std::cerr << "match_choice:		" << std::endl;
-	#endif
-	newRule.set_content(lhs);
-	result = match_word(inputLine, newRule);
-	if (result != true)
-	{
-		newRule.set_content(rhs);
-		result = match_word(inputLine, newRule);
-	}
-	return (result);
-}
-
-bool Lexer::match_group(Input& inputLine, Rule& actualRule)
-{
-	Operator	op;
-	std::string::iterator pos;
-	std::string lhs;
-	std::string rhs;
-	bool		result;
-	bool		stop;
-
-	#ifdef DEBUG
-	std::cerr << "start group: \n" << std::endl;
-	#endif
-	std::string groupContent = actualRule.get_next_group_sequence();
-	stop = false;
-	result = false;
-
-	pos = groupContent.begin() + 1;
-	actualRule.advance(1);
-	actualRule.clear_until_pos();
-	while (stop == false)
-	{
-		if (lhs.empty() == true)
-			lhs = actualRule.nextWord();
-		else
-			lhs = rhs;
-		actualRule.advance(lhs.size());
-		actualRule.clear_until_pos();
+		node->input_value = std::string(start, _pos);
 		
-		op = actualRule.next_operator();
-		actualRule.advance(actualRule.nextWord().size());
-		actualRule.clear_until_pos();
-		rhs = actualRule.nextWord();
-		if (op == GROUPEND)
-			stop = true;
-		else
-		{
-			
-			if (op == CHOICE)
-			{
-				result = make_choice(inputLine, lhs, rhs);
-			}
-			else if (op == SECONDQUOTE)
-			{
-				Rule newRule;
-				newRule.set_content(lhs);
-				result = match_string(inputLine, newRule);
-				if (result == true)
-				{
-					inputLine.advance(lhs.size() - 2);
-					inputLine.clear_until_pos();
-		
-				}
-				else
-				{
-					newRule.set_content(rhs);
-					result = match_string(inputLine, newRule);
-					if (result == true)
-					{
-						inputLine.advance(rhs.size() - 2);
-						inputLine.clear_until_pos();
-						stop = true;
-					}
-				}
-			
-			}
-			stop = result;
-		}
-		}
-		if (result == true)
-		{
-			size_t pos_last;
-			actualRule.clear_until_pos();
-			pos_last = actualRule.operator_pos(GROUPEND);
-			actualRule.eraseWord(pos_last + 1);
-		}
-	#ifdef DEBUG
-	std::cerr << "\nend group: ";
-	result ? std::cerr << GREEN << " match"  : std::cerr << RED << " not match";
-	std::cerr << RESET << std::endl;
-	#endif
+	}
+	else
+		_pos = start;
 	return (result);
 }
 
+bool Lexer::compare_special(token *node)
+{
+	(void)node;
+	std::string word;
+	std::string::iterator start;
+	std::string::iterator last;
 
-bool Lexer::match_choice(Input& inputLine, Rule& actualRule)
+	start = start_pos();
+	last = _line.end();
+	word = _input.nextWord(_pos, last);
+	if (word.empty() == true)
+		return (false);
+	advance_pos(word.size());
+	return (true);
+}
+
+bool Lexer::compare_choice(token *node)
+{
+	bool result;
+
+	result = naviguate_in_tree(node->left);
+	if (result == false)
+		result = naviguate_in_tree(node->right);
+	return (result);
+}
+
+bool Lexer::compare_concatenation(token *node)
+{
+	bool result;
+	bool status;
+	std::string rule_concatenation;
+
+	result = false;
+	status = _input.get_size_check();
+	rule_concatenation = obtain_rule_concatenation(node);
+	_input.size_check_on(false);
+	result = match_rule("", rule_concatenation);
+	_input.size_check_on(status);
+	return (result);
+}
+
+std::string Lexer::obtain_rule_concatenation(token *node)
 {
 	std::string lhs;
 	std::string rhs;
-	bool		result;
+	std::string rule_concatenation;
 
-	lhs = actualRule.nextWord();
-	actualRule.advance(lhs.size());
-	actualRule.clear_until_pos();
-
-	actualRule.advance(actualRule.nextWord().size());
-	actualRule.clear_until_pos();
-
-	rhs = actualRule.nextWord();
-	actualRule.advance(rhs.size());
-	actualRule.clear_until_pos();
-	result = make_choice(inputLine, lhs, rhs);
-	return (result);
+	if (node->left != NULL)
+		lhs = new_rule_from_nodes(node->left);
+	if (node->right != NULL)
+		rhs = new_rule_from_nodes(node->right);
+	rule_concatenation = lhs + " " + rhs;
+	return (rule_concatenation);
 }
 
-bool Lexer::match_repeat(Input& inputLine, Rule& actualRule)
+std::string Lexer::new_rule_from_nodes(token *node)
+{
+	std::string new_rule;
+
+	if (node == NULL)
+		return ("");
+	new_rule = " ";
+	if (node->left != NULL)
+		new_rule += new_rule_from_nodes(node->left);
+	if (node->type == TOKEN)
+	{
+		Rule token_rule(_rules[node->value]);
+		new_rule += new_rule_from_nodes(token_rule.get_root());
+	}
+	else
+		new_rule += node->original_value;
+	if (node->right != NULL)
+		new_rule += new_rule_from_nodes(node->right);
+	return (new_rule);
+}
+
+bool Lexer::compare_repeat(token *node)
 {
 	bool result;
-	bool result_word;
+	bool status;
+	std::string::iterator start;
 
-	Rule newRule;
-	std::string ruleContent;
-	ruleContent = actualRule.get_next_sequence(REPEATSTART);
-	#ifdef DEBUG
-	std::cerr << "\nstart repeat: " << "{ " << BLUE <<  ruleContent << RESET << " }" << std::endl;
-	#endif
-		size_t pos_op = actualRule.operator_pos(REPEATSTART);
-		newRule.set_content(actualRule.left_hand_side(pos_op));
-		if (newRule.empty() == false)
-		{
-			if (match_word(inputLine, newRule) == false)
-			{
-				return (false);
-			}
-		}
-		actualRule.eraseWord(pos_op);
-		actualRule.clear_until_pos();
-	newRule.set_content(ruleContent);
+	status = _input.get_size_check();
+	_input.size_check_on(false);
 	
-	result = match_word(inputLine, newRule);
-	result_word = result;
-	while (inputLine.empty() == false && result_word == true)
+	start = start_pos();
+	result = match_rule("", node->value);
+	node->input_value += std::string(start, _pos);
+	node->input_value += " ";
+	if (result == true)
 	{
-		//std::cerr << "HELLO2" << std::endl;
-		newRule.set_content(ruleContent); 
-		result_word = match_word(inputLine, newRule); // <-
+		start = start_pos();
+		while (match_rule("", node->value) == true)
+		{
+			node->input_value += std::string(start, _pos);
+			node->input_value += " ";
+			start = start_pos();
+		}
 	}
-	actualRule.advance(ruleContent.size());
-	actualRule.clear_until_pos();
-
-	#ifdef DEBUG
-	std::cerr << "\nend repeat: ";
-	result ? std::cerr << GREEN << " match"  : std::cerr << RED << " not match";
-	std::cerr << RESET << std::endl;
-	#endif
-	
+	_input.size_check_on(status);
 	return (result);
 }
 
-bool Lexer::match_special(Input& inputLine, Rule& actualRule)
+bool Lexer::compare_group(token *node)
 {
-	//(void)actualRule;
-	static bool start_reading = false;
-	static bool end_reading = false;
 	bool result;
-	std::string buffer;
-	char		inputChar;
-
-	result = false;
-	buffer = actualRule.nextWord();
-	inputChar = inputLine.peek();
-	if (inputLine.empty() == false)
-	{
-		if (start_reading == false && end_reading == false)
-		{
-			if (std::isspace(inputChar) == true)
-			{
-				while (std::isspace(inputChar) == true)
-				{
-					inputLine.move_pos(1);
-					inputLine.clear_until_pos();
-					inputChar = inputLine.peek();
-				}
-			}
-			start_reading = true;
-		}
-		else if (start_reading == true && end_reading == false && std::isspace(inputChar) == true)
-		{
-			end_reading = true;
-			result = false;
-		}
-		if (inputLine.empty() == false && start_reading == true && end_reading == false)
-		{
-			inputLine.move_pos(1);
-			inputLine.clear_until_pos();
-			result = true;
-		}
-	}
-	if (inputLine.empty() == true)
-		end_reading = true;
-	if (end_reading == true )
-	{
-		start_reading = false;
-		end_reading = false;
-	}
-	actualRule.eraseWord(buffer.size() + 2);
+	result = match_rule("", node->value);
 	return (result);
 }
 
+
+bool Lexer::compare_optional(token *node)
+{
+	match_rule("", node->value);
+	return (true);
+}
 
 
 Lexer::Lexer(const Lexer &origin)
@@ -566,8 +329,6 @@ std::ostream& operator<<(std::ostream& out, const std::vector<KeyWord>& tokenLis
 	first = tokenList.begin();
 	last = tokenList.end();
 	
-	if (tokenList.empty() == true)
-		std::cerr << "HELLO" << std::endl;
 
 
 	for (; first != last;  first++)
@@ -576,4 +337,44 @@ std::ostream& operator<<(std::ostream& out, const std::vector<KeyWord>& tokenLis
 
 	}
 	return (out);
+}
+
+Lexer::Lexer(std::string grammarFileName, std::string inputFileName)
+	: _rules(Vocabulary(grammarFileName)), _input(inputFileName)
+{
+	match_content.insert(std::make_pair(STRING, &Lexer::compare_string));
+	match_content.insert(std::make_pair(TOKEN,  &Lexer::compare_token));
+	match_content.insert(std::make_pair(CONCATENATION,  &Lexer::compare_concatenation));
+	match_content.insert(std::make_pair(SPECIAL,  &Lexer::compare_special));
+	match_content.insert(std::make_pair(GROUP,  &Lexer::compare_group));
+	match_content.insert(std::make_pair(REPEAT, & Lexer::compare_repeat));
+	match_content.insert(std::make_pair(CHOICE,  &Lexer::compare_choice));
+	match_content.insert(std::make_pair(OPTIONAL, & Lexer::compare_optional));
+}
+
+Lexer::Lexer(const Vocabulary &vocabulary, const Input &otherInput)
+	: _rules(vocabulary), _input(otherInput)
+{
+	match_content.insert(std::make_pair(STRING, &Lexer::compare_string));
+	match_content.insert(std::make_pair(TOKEN,  &Lexer::compare_token));
+	match_content.insert(std::make_pair(CONCATENATION,  &Lexer::compare_concatenation));
+	match_content.insert(std::make_pair(SPECIAL,  &Lexer::compare_special));
+	match_content.insert(std::make_pair(GROUP,  &Lexer::compare_group));
+	match_content.insert(std::make_pair(REPEAT, & Lexer::compare_repeat));
+	match_content.insert(std::make_pair(CHOICE,  &Lexer::compare_choice));
+	match_content.insert(std::make_pair(OPTIONAL, & Lexer::compare_optional));
+}
+
+Lexer::Lexer(const Vocabulary &vocabulary, std::string InputContent)
+	: _rules(vocabulary), _input()
+{
+	_input.set_content(InputContent);
+	match_content.insert(std::make_pair(STRING, &Lexer::compare_string));
+	match_content.insert(std::make_pair(TOKEN,  &Lexer::compare_token));
+	match_content.insert(std::make_pair(CONCATENATION,  &Lexer::compare_concatenation));
+	match_content.insert(std::make_pair(SPECIAL,  &Lexer::compare_special));
+	match_content.insert(std::make_pair(GROUP,  &Lexer::compare_group));
+	match_content.insert(std::make_pair(REPEAT, & Lexer::compare_repeat));
+	match_content.insert(std::make_pair(CHOICE,  &Lexer::compare_choice));
+	match_content.insert(std::make_pair(OPTIONAL, & Lexer::compare_optional));
 }

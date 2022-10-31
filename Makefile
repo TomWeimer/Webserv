@@ -19,7 +19,7 @@ SRC	:=	src/http/Answer.cpp\
 		src/server/config/Settings.cpp\
 		src/utils/utils.cpp\
 
-SRC_PARSER := src/MyParsing/src/Lexer/Operator.cpp src/MyParsing/src/Lexer/Vocabulary.cpp src/MyParsing/src/Lexer/Lexer.cpp src/MyParsing/src/Lexer/Input.cpp  src/MyParsing/src/Lexer/Rule.cpp
+SRC_PARSER := src/MyParsing/src/Lexer/Vocabulary.cpp src/MyParsing/src/Lexer/Lexer.cpp src/MyParsing/src/Lexer/Input.cpp  src/MyParsing/src/Lexer/Rule.cpp
 
 SRC_MAIN = src/main.cpp
 
@@ -79,10 +79,10 @@ RESET	:= \033[0m
 ##------------------------------------------------------------------------------##
 ##								COMPILATION										##
 ##------------------------------------------------------------------------------##
-CC		:= g++
+CC		:= g++-12
 
 # Compilation flags
-CFLAGS	:= -Wall -Wextra -Werror -std=c++98 -g -fsanitize=address
+CFLAGS	:= -Wall -Wextra -Werror -std=c++98 -g -fsanitize=leak
 # explicit compilation
 $(OBJ_DIR)%.o: %.cpp 
 	@$(CC) $(CFLAGS) $(INCLUDE)  -c $< -o $@

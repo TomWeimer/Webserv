@@ -9,7 +9,6 @@
 #include "Input.hpp"
 #include "Rule.hpp"
 #include "Vocabulary.hpp"
-#include "Operator.hpp"
 
 #define RESET "\033[0m"
 #define BLACK "\033[30m"			  /* Black */
@@ -39,15 +38,21 @@ struct Token
 	Token() {}
 	Token(std::string name, std::string value)
 		: tokenType(name), valueToken(value) {}
-	
 };
 
 struct KeyWord
 {
 	std::string tokenType;
 	std::vector<Token> args;
+	void clear()
+	{
+		tokenType = "";
+		args.clear();
+	}
 
 };
+
+
 
 std::ostream& operator<<(std::ostream& out, const KeyWord& origin);
 
@@ -56,18 +61,52 @@ std::ostream& operator<<(std::ostream& out, const Token& origin);
 
 class Lexer
 {
+	typedef bool (Lexer::*functor)(token *);
+	private:
+		std::string::iterator start_pos();
+		void	new_token(token *node);
+		bool	new_keyword(Rule& rule);
+		
+		void add_new_token(token *node);
+		bool naviguate_in_tree(token *node);
+		std::string obtain_rule_concatenation(token *node);
+		std::map<TOKEN_TYPE,functor> match_content; 
+		void advance_pos(size_t size);
+			void create_token(std::string ruleContent);
+			bool match_subrule(std::string& rule, std::string tokenName);
+			bool compare_input_to_token(Rule& newRule);
+			bool match_rule(std::string ruleName, std::string ruleContent);
+			bool compare_input_and_nodes(token *node);
 private:
+	std::string::iterator					_pos;
+	std::string								_line;
+
+	KeyWord					_actual_token;
 	Vocabulary				_rules;
 	Input					_input;
-	std::string copyInputLine;
+	std::string				_token;
 
 	std::vector<KeyWord>	_list;
+	std::vector<KeyWord>	_list_tmp;
+	std::vector<std::string>	_content;
 	
 	std::string::iterator	_first;
 	std::string::iterator	_last;
 	std::string				_actualToken;
 	std::string	_tokenValue;
 
+	public:
+	bool compare_token(token *node);
+	bool compare_string(token *node);
+	bool compare_concatenation(token *node);
+	bool compare_choice(token *node);
+	bool compare_repeat(token *node);
+	bool compare_group(token *node);
+	bool compare_optional(token *node);
+	std::string new_rule_from_nodes(token *node);
+	bool compare_input(token *node);
+	bool compare_special(token *node);
+	
 public:
 	std::vector<std::string>	_value;
 	Vocabulary& get_rules();

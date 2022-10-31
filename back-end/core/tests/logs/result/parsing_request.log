@@ -6,3 +6,6 @@
  KeyWord: <Host>
                - <uri-socket> localhost:8080
 
+ KeyWord: <Connection>
+               - <connection-option> keep-alive
+

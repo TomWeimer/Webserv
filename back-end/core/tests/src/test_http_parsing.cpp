@@ -14,7 +14,7 @@ bool parsing_request()
 {
 	Vocabulary			voc("./back-end/conf/HTTP.ebnf");
 	
-	std::string str = "GET /favicon.ico HTTP/1.1\nHost: localhost:8080";
+	std::string str = "GET /favicon.ico HTTP/1.1\r\nHost: localhost:8080\r\nConnection: keep-alive";
 
 	Lexer				lex(voc, str);
 	std::stringstream	ssr;

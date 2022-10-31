@@ -7,24 +7,24 @@ TARGET	:= MyParsing
 ##------------------------------------------------------------------------------##
 ##								HEADERS											##
 ##------------------------------------------------------------------------------##
-INC = -I  ../../include -I ./tests/include/ -I ./include/
+INC =  -I ./include/
 INCLUDE	:= $(INC)	
 
 
 ##------------------------------------------------------------------------------##
 ##								SOURCES											##
 ##------------------------------------------------------------------------------##
-SRC	:=	MyParsing/src/Lexer/Operator.cpp MyParsing/src/Lexer/Vocabulary.cpp MyParsing/src/Lexer/Lexer.cpp MyParsing/src/Lexer/Input.cpp MyParsing/src/Lexer/Rule.cpp server/config/Settings.cpp
+SRC	:=	Lexer/Input.cpp Lexer/Lexer.cpp Lexer/Rule.cpp Lexer/Vocabulary.cpp
 
-SRC_LEXER = MyParsing/src/main.cpp
+SRC_LEXER = main.cpp
 SRC_LEXER += $(SRC)
-SRC_TEST = MyParsing/tests/src/main.cpp MyParsing/tests/src/Logfile.cpp
+SRC_TEST = tests/src/main.cpp tests/src/Logfile.cpp
 SRC_TEST += $(SRC)
 
 # Src directory
-SRC_DIR		:=	$(realpath ..)/
+SRC_DIR		:=	./src/
 # Subdirectories of src
-SRCS_SUBDIR	:= $(SRC_DIR)/MyParsing $(SRC_DIR)/MyParsing/tests/src  $(SRC_DIR)/MyParsing $(SRC_DIR)/MyParsing/src $(SRC_DIR)/MyParsing/src/Lexer $(SRC_DIR)/server/config
+SRCS_SUBDIR	:= ./src/Lexer 
 # Full paths sources
 SRCS		:= $(addprefix $(SRC_DIR), $(SRC_LEXER))
 SRCS_TEST	:= $(addprefix $(SRC_DIR), $(SRC_TEST))
@@ -36,7 +36,7 @@ SRCS_TEST	:= $(addprefix $(SRC_DIR), $(SRC_TEST))
 OBJ := $(SRCS:.cpp=.o)
 OBJ_TEST := $(SRCS_TEST:.cpp=.o)
 # Objects directory
-OBJ_DIR	:= $(realpath .)/obj/
+OBJ_DIR	:= ./obj/
 # From str to obj/
 OBJS := $(subst $(SRC_DIR), $(OBJ_DIR), $(OBJ))
 
@@ -84,7 +84,7 @@ VPATH := $(SRC_DIR) $(OBJ_DIR) $(SRCS_SUBDIR)
 all:	$(OBJ_DIR) $(TARGET)
 
 $(OBJ_DIR):
-	@ mkdir -p $(OBJ_DIR)
+	 mkdir -p $(OBJ_DIR)
 	@$(foreach listObj, $(SRCS_SUBDIR), $(NEWSUBDIR))
 
 $(TARGET):	$(SRCS) $(OBJS)

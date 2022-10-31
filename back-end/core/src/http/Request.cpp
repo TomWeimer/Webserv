@@ -1,5 +1,5 @@
 #include "../../include/http/Request.hpp"
-#include "MyParsing.hpp"
+#include "Lexer.hpp"
 
 Request::Request(int socketFD, std::string fullRequest){
 	this->_socketFd = socketFD;
