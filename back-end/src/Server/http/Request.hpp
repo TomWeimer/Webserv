@@ -26,6 +26,7 @@ class Request
 		Lexer					_http_lexer;
 		BlockParams				*_actualBlock;
 		bool					_valid;
+		bool					_valid_minim_http;
 		bool					_valid_target;
 		bool					_valid_method;
 		std::string				_full_request;
@@ -60,7 +61,10 @@ class Request
 		
 	
 	public:
-		bool		is_valid();
+		bool		isValid();
+		bool		isTargetValid();
+		bool		isMethodValid();
+		bool		isHttpValid();
 		std::string	getFullRequest();
 		int			getSocketFd();
 		std::string getRout();

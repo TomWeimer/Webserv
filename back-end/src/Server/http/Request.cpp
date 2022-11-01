@@ -114,13 +114,16 @@ bool		Request::minimal_http_requirement()
 	if (_method.empty() == true || _target.empty() == true || _version.empty() == true)
 	{
 		_valid = false;
+		_valid_minim_http = false;
 		return (false);
 	}
 	if (_version == "HTTP/1.1" && _host.empty() == true)
 	{
 		_valid = false;
+		_valid_minim_http = false;
 		return (false);
 	}
+	_valid_minim_http = true;
 	return (true);
 }
 
@@ -137,7 +140,7 @@ bool Request::method_is_valid()
 
 	for (it = _actualBlock->allowed_methods.begin(); it != _actualBlock->allowed_methods.end(); it++)
 	{
-		std::cerr << "it: " << *it << std::endl;
+		// std::cerr << "it: " << *it << std::endl;
 		if (*it == _method)
 		{
 			_valid_method = true;
@@ -145,7 +148,7 @@ bool Request::method_is_valid()
 		}
 	}
 	_valid_method = false;
-	std::cerr << "method_invalid:" << std::endl;
+	// std::cerr << "method_invalid:" << std::endl;
 	return (false);
 }
 
@@ -157,7 +160,7 @@ bool Request::target_is_valid()
 	if (!file.is_open())
 	{
 		_valid_target = false;
-		std::cerr << "target_invalid:" << std::endl;
+		// std::cerr << "target_invalid:" << std::endl;
 		return (false);
 	}
 	else 
@@ -169,24 +172,20 @@ bool Request::target_is_valid()
 }
 
 
-bool Request::is_valid()
-{
-	return (_valid);
-}
 
 std::string Request::getRequestType(){
 	return this->_method;
 }
 
 std::string Request::getRout(){
-	std::cerr << "target: " <<  _target << std::endl;
-	std::cerr << "final target: " <<  _final_target << std::endl;
-	std::cerr << (_actualBlock == NULL) << std::endl;
+	// std::cerr << "target: " <<  _target << std::endl;
+	// std::cerr << "final target: " <<  _final_target << std::endl;
+	// std::cerr << (_actualBlock == NULL) << std::endl;
 	if (_actualBlock != NULL)
 	{
-		std::cerr << "root: " <<  _actualBlock->root << std::endl;
+		// std::cerr << "root: " <<  _actualBlock->root << std::endl;
 	//	std::cerr << "allowed_method: " << _actualBlock->allowed_methods[0] << std::endl;
-		std::cerr << (_actualBlock == NULL) << std::endl;
+		// std::cerr << (_actualBlock == NULL) << std::endl;
 	}
 	
 
@@ -194,13 +193,29 @@ std::string Request::getRout(){
 
 }
 
-
 int	Request::getSocketFd(){
 	return this->_socket_fd;
 }
 
 std::string	Request::getFullRequest(){
 	return this->_full_request;
+}
+
+bool Request::isValid()
+{
+	return (_valid);
+}
+
+bool		Request::isTargetValid(){
+	return _valid_target;
+}
+
+bool		Request::isMethodValid(){
+	return _valid_method;
+}
+
+bool		Request::isHttpValid(){
+	return _valid_minim_http;
 }
 
 Request::~Request(){}

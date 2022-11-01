@@ -126,16 +126,13 @@ int HandleConnection::socket_is_ready(int i)
 // If the client is a new one, we add it to the server
 void HandleConnection::handle_new_connection(int socketFd, int &max_socket)
 {
-	std::cout << "newConnection" << std::endl;
 	Socket client(_server->find_sockfd(socketFd), false);
 
 	if (client.getSocketFd() == -1)
 		perror("new connection");
 	else
 	{
-		std::cout << "newConnection2" << std::endl;
 		add_new_connection(client, max_socket);
-		std::cout << "newConnection3" << std::endl;
 	}
 }
 

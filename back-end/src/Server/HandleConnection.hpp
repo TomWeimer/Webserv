@@ -34,7 +34,7 @@ private:
 
 private:
 	void handle_new_connection_or_request(int& max_socket);
-	int socket_is_ready(int i);
+	int		socket_is_ready(int i);
 	void handle_new_connection(int socketFd, int &max_socket);
 	void handle_new_request(int socketFd);
 	void add_new_connection(Socket &client, int &max_socket);

@@ -36,12 +36,14 @@ class Answer {
 		void	setFullAnswer();
 		void	setHeader();
 		void	setBody(std::string bodyLocation);
+		bool	checkValidity();
 		void	invalidRequest(std::string statusCode);
 		void	deleteRequest();
 		void	postRequest();
 		void	getRequest();
 		void	sendAnswer();
 		void	checkRout(); //temporary
+		void	logInfo();
 };
 
 
