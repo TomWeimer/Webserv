@@ -44,7 +44,7 @@ class Request
 		Request(int socketFD, std::string fullRequest, Server *server);
 		~Request();
 	private:
-		bool 		assign_redirection(ServerBlock *server_info);
+		bool 		assign_redirection();
 		std::string	obtain_request_body();
 		void		parse_request();
 		void		assign_tokens();

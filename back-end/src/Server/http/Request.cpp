@@ -79,8 +79,10 @@ void Request::assign_location_block()
 	server_info = _server->get_server_info();
 	if (minimal_http_requirement() == true)
 	{
-		if (assign_redirection(server_info) == false)
+		if (assign_redirection() == false)
 			_actualBlock = server_info;
+		else
+			std::cerr << "in a redirection" << std::endl;
 	}
 	if (_actualBlock != NULL)
 		_final_target = _actualBlock->root + _target;
@@ -88,28 +90,21 @@ void Request::assign_location_block()
 		_final_target = _target;
 }
 
-bool Request::assign_redirection(ServerBlock *server_info)
+bool Request::assign_redirection()
 {
 	std::vector<LocationBlock>& locationList = _server->get_location_list();
 	size_t						i;
-	std::string					tmp;
 	
 	
 	if (locationList.empty() == true)
 		return (false);
 	for (i = 0; i < locationList.size(); i++)
 	{
-		if (locationList[i].root.empty() == false)
-			tmp += locationList[i].root;
-		else
-			tmp += server_info->root;
-		tmp += _target;
-		if (tmp == locationList[i].path)
+		if (_target == locationList[i].path)
 		{
 			_actualBlock = &locationList[i];
 			return (true);
 		}
-		tmp.clear();
 	}
 	return (false);
 }
