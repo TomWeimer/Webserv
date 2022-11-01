@@ -6,22 +6,23 @@ TARGET	:= server
 ##------------------------------------------------------------------------------##
 ##								HEADERS											##
 ##------------------------------------------------------------------------------##
-INC = -I ./back-end/core/include/ -I ./back-end/core/tests/include -I ./back-end/core/src/MyParsing/include
+INC = 
 INCLUDE	:= $(INC)	
 
 ##------------------------------------------------------------------------------##
 ##								SOURCES											##
 ##------------------------------------------------------------------------------##
-SRC	:=	src/http/Answer.cpp\
-		src/http/Request.cpp\
-		src/server/Server.cpp\
-		src/server/Socket.cpp\
-		src/server/config/Settings.cpp\
+SRC	:=	src/Server/Server.cpp\
+		src/Server/HandleConnection.cpp\
+		src/Server/Config/Config.cpp\
+		src/Server/http/Answer.cpp\
+		src/Server/http/Request.cpp\
+		src/Server/socket/Socket.cpp\
 		src/utils/utils.cpp\
-		src/utils/Parsing/Vocabulary.cpp\
-		src/utils/Parsing/Lexer.cpp\
-		src/utils/Parsing/Input.cpp\
-		src/utils/Parsing/Rule.cpp
+		src/utils/Parsing/Input/Input.cpp\
+		src/utils/Parsing/Lexer/Lexer.cpp\
+		src/utils/Parsing/Rule/Rule.cpp\
+		src/utils/Parsing/Vocabulary/Vocabulary.cpp\
 
 SRC_MAIN = src/main.cpp
 
@@ -32,9 +33,9 @@ SRC_TEST += $(SRC)
 		
 
 # Src directory
-SRC_DIR		:=	./back-end/core/
+SRC_DIR		:=	./back-end/
 # Subdirectories of src
-SRCS_SUBDIR := ./back-end/core/src ./back-end/core/src/http ./back-end/core/src/server ./back-end/core/src/server/config ./back-end/core/src/utils ./back-end/core/src/http ./back-end/core/tests/src ./back-end/core/src/utils/Parsing
+SRCS_SUBDIR := ./back-end/src ./back-end/src/Server ./back-end/src/Server/http ./back-end/src/Server/config ./back-end/src/Server/socket  ./back-end/src/utils   ./back-end/src/utils/Parsing ./back-end/src/utils/Parsing/Vocabulary ./back-end/src/utils/Parsing/Rule ./back-end/src/utils/Parsing/Input ./back-end/src/utils/Parsing/Lexer ./back-end/tests/src
 
 # Full paths sources
 SRCS			:= $(addprefix $(SRC_DIR), $(SRC_MAIN))
