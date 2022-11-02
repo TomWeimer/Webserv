@@ -36,7 +36,7 @@ bool Answer::checkValidity(){
 		invalidRequest("403 Forbidden");
 		return false;
 	}
-	else if(!_request->isTargetValid()){
+	else if(!_request->isTargetValid() && _request->getRequestType() != "POST"){
 		invalidRequest("404 Not Found");
 		return false;
 	}
@@ -67,6 +67,13 @@ void Answer::getRequest(){
 }
 
 void Answer::deleteRequest(){
+	std::ifstream testFile;
+	testFile.open(this->_request->getRout().c_str());
+	if (!testFile.is_open()){
+		invalidRequest("403 Forbidden");
+		return;
+	}
+	testFile.close();
 	int result = std::remove(this->_request->getRout().c_str());
 	if (!result)
 		std::cout << "deleted" << std::endl;
@@ -79,7 +86,22 @@ void Answer::deleteRequest(){
 }
 
 void Answer::postRequest(){ //TODO: check if file already exists
-	//need to have a parser for the body
+	std::ifstream testFile;
+	testFile.open(this->_request->getRout().c_str());
+	if (testFile.is_open()){
+		std::cout << "file exist already" << std::endl;
+		testFile.close();
+		invalidRequest("403 Forbidden");
+		return;
+	}
+	std::ofstream newFile;
+	newFile.open (this->_request->getRout().c_str(), std::ofstream::out); // for cgi appending: ofs.open ("test.txt", std::ofstream::out | std::ofstream::app);
+	newFile << this->_request->getBody();
+	newFile.close();
+	this->_body = "File created\n";
+	std::string line = "HTTP/1.1 201 Created\nContent-Type: text/plain\nContent-Length: ";
+	std::string len = NumberToString(this->_body.size());
+	this->_fullAnswer = line + len + "\n\n" + this->_body;
 }
 
 

@@ -201,6 +201,15 @@ std::string	Request::getFullRequest(){
 	return this->_full_request;
 }
 
+std::string Request::getBody(){
+	return this->_body;
+}
+
+std::string Request::getInitialRout(){
+	return this->_target;
+}
+
+
 bool Request::isValid()
 {
 	return (_valid);

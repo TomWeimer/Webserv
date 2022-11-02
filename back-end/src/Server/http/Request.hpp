@@ -68,7 +68,9 @@ class Request
 		std::string	getFullRequest();
 		int			getSocketFd();
 		std::string getRout();
+		std::string getInitialRout();
 		std::string getRequestType();
+		std::string	getBody();
 };
 
 #endif

@@ -27,7 +27,7 @@ void HandleConnection::listenConnection()
 	for (size_t i = 0; i < _server->sockets_number(); i++)
 	{
 		std::cout << "listening on PORT:  " << _server->get_port(i) << std::endl;
-		_server->getSocket(i).listenPort(100);
+		_server->getSocket(i).listenPort(10);
 	}
 }
 
