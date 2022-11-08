@@ -10,7 +10,7 @@
 class Webserv
 {
 private:
-	std::vector<Server> _servers;
+	std::vector<Server*> _servers;
 private:
 	int find_number_of_server(std::vector<KeyWord> parsed_file);
 	void create_list_of_servers(std::vector<KeyWord> server_info);

@@ -23,7 +23,6 @@ SRC	:=	Request/Request.cpp\
 		Socket/ServerSocket.cpp\
 		Config/Config.cpp\
 		Webserv/Webserv.cpp\
-		utils/utils.cpp\
 		utils/Parsing/Input/Input.cpp\
 		utils/Parsing/Lexer/Lexer.cpp\
 		utils/Parsing/Rule/Rule.cpp\
@@ -40,7 +39,7 @@ SRC_TEST += $(SRC)
 # Src directory
 SRC_DIR		:=	./
 # Subdirectories of src
-SRCS_SUBDIR := ./Server ./Client ./Config ./ManageConnection ./Webserv ./Socket  ./utils   ./utils/Parsing ./utils/Parsing/Vocabulary ./utils/Parsing/Rule ./utils/Parsing/Input ./utils/Parsing/Lexer
+SRCS_SUBDIR := ./Server ./Client ./Config ./ManageConnection ./Webserv ./Socket ./Request ./Answer  ./utils   ./utils/Parsing ./utils/Parsing/Vocabulary ./utils/Parsing/Rule ./utils/Parsing/Input ./utils/Parsing/Lexer
 
 # Full paths sources
 SRCS			:= $(addprefix $(SRC_DIR), $(SRC_MAIN))

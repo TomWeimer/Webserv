@@ -15,10 +15,10 @@ class Socket
 	private:
 	virtual int sockfd() const = 0;
 	virtual struct sockaddr_in& get_name() = 0;
-	virtual const struct sockaddr_in& get_name()const;
+	virtual const struct sockaddr_in& get_name()const = 0;
 
 	public:
-	Socket();
+	Socket() {}
 	Socket(int fd) : _fd(fd)
 	{
 		socklen_t addrlen = sizeof(_name);

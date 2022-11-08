@@ -28,7 +28,7 @@ class ClientSocket : public IClientSocket, public Socket
 	ClientSocket(int sockfd);
 	ClientSocket(const ClientSocket&);
 	ClientSocket& operator=(const ClientSocket&);
-	virtual ~ClientSocket();
+	~ClientSocket();
 
 	public:
 	bool is_listening_port()const;

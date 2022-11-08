@@ -8,6 +8,7 @@
 
 struct BlockParams
 {
+	bool						autoindex;
 	int							body_limit;
 	std::string					root;
 	std::vector<std::string>	index;
@@ -31,7 +32,7 @@ struct ServerBlock : public BlockParams
 class Config
 {
 public:
-	typedef void (*functor)(KeyWord keyword);
+	typedef void (Config::*functor)(KeyWord keyword);
 
 private:
 	ServerBlock&					_serverInfo;
@@ -57,8 +58,10 @@ private:
 	void allow_methods(KeyWord keyword);
 	void client_limit(KeyWord keyword);
 	void error_pages(KeyWord keyword);
+	void autoindex(KeyWord keyword);
 
 public:
 	Config(ServerBlock &_info, std::vector<LocationBlock> &locationList, std::vector<KeyWord> listToken);
+	~Config();
 };
 #endif

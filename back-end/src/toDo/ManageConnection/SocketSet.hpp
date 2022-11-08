@@ -1,6 +1,7 @@
 #ifndef SOCKETSET_HPP
 #define SOCKETSET_HPP
-#include "../Socket/Socket.hpp"
+#include "../Socket/ServerSocket.hpp"
+#include "../Socket/ClientSocket.hpp"
 #include <sys/select.h>
 
 class SocketSet
@@ -17,9 +18,12 @@ public:
 public:
 	void clear();
 	int		is_in_set(int fd);
-	void add_socket(Socket& socket);
+	void add_socket(ClientSocket* newSocket);
+	void add_socket(ServerSocket* newSocket);
 	void remove_socket(int fd);
 	fd_set *get_set();
+	const fd_set *get_set()const;
+
 };
 
 #endif

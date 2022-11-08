@@ -12,6 +12,7 @@ ServerSocket::ServerSocket(int family, int port, std::string ip)
 }
 
 ServerSocket::ServerSocket(const ServerSocket &origin)
+	: Socket(origin)
 {
 	_name.sin_family = origin._name.sin_family;
 	_name.sin_port = htons(origin._name.sin_port);
@@ -19,8 +20,9 @@ ServerSocket::ServerSocket(const ServerSocket &origin)
 }
 
 ServerSocket &ServerSocket::operator=(const ServerSocket & origin)
-{ if (this == &origin)
-	return (*this);
+{ 
+	if (this == &origin)
+		return (*this);
 	_name.sin_family = origin._name.sin_family;
 	_name.sin_port = htons(origin._name.sin_port);
 	_name.sin_addr.s_addr = origin._name.sin_addr.s_addr;
@@ -71,13 +73,14 @@ int ServerSocket::sockfd() const {
 
 struct sockaddr_in &ServerSocket::get_name()
 {
-
+	return (_name);
 }
 
 const struct sockaddr_in &ServerSocket::get_name()const
 {
-
+	return (_name);
 }
+
 bool ServerSocket::is_listening_port()const
 {
 	return (true);

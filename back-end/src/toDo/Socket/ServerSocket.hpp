@@ -34,7 +34,7 @@ class ServerSocket : public IServerSocket, public Socket
 	ServerSocket(int family, int port, std::string ip);
 	ServerSocket(const ServerSocket&);
 	ServerSocket& operator=(const ServerSocket&);
-	virtual ~ServerSocket();
+	~ServerSocket();
 
 	public:
 	bool is_listening_port()const;

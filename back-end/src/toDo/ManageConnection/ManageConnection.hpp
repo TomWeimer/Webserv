@@ -16,28 +16,29 @@ class ManageConnection
 	class Register
 	{
 	private:
-		std::map<int, Socket &>			_sockets;						// key: sockfd	 value: socket
-		std::map<int, Server &> 		_servers;				// key: sockfd	 value: server
+		std::map<int, Socket *>			_sockets;						// key: sockfd	 value: socket
+		std::map<int, Server *> 		_servers;				// key: sockfd	 value: server
 	
 	public:
 		void		init();
-		void		add_entry(int sockfd, Socket &socket_ref);
-		void		add_entry(int sockfd, Server& server);
+		void		add_entry(int sockfd, Socket* socket);
+		void		add_entry(int sockfd, Server* server);
 		void		erase_entry(int sockfd);
 		void		add_listening_socket(int sockfd, Socket &socket, Server& server);
-		Server&		find_server(int sockfd);
+		Server*	find_server(int sockfd);
 		bool		is_registered(int sockfd);
 		int			max();
-		Socket	&operator[](int sockfd);
+		Socket	*operator[](int sockfd);
+		~Register();
 	};
 	
 
 private:
 	Server*					_actual_server;
-	int _max_socket;
+
 	struct timeval			_timeout;
-	std::vector<Server>&	_servers;
-	std::map<struct sockaddr_in, Client>	_clients;
+	std::vector<Server*>&	_servers;
+	int _max_socket;
 	std::map<int, Client>	_clients;
 	Register				_register;
 	SocketSet				_sockets_ready;
@@ -45,7 +46,7 @@ private:
 	
 
 public:
-	ManageConnection(std::vector<Server> &servers);
+	ManageConnection(std::vector<Server*> &servers);
 	void server_connection();
 
 private:
@@ -57,15 +58,15 @@ private:
 	void  obtain_sockets_ready_to_read();
 	void handle_new_connection_or_request();
 	int socket_is_ready_to_read(int fd);
-	void add_socket(Server& server, ClientSocket& new_socket, SocketSet& socket_set);
-	void add_socket(Server& server, ServerSocket& new_socket, SocketSet& socket_set);
+	void add_socket(Server* server, ClientSocket* new_socket, SocketSet& socket_set);
+	void add_socket(Server* server, ServerSocket* new_socket, SocketSet& socket_set);
 
 	void create_new_client(int socketFd);
 	void handle_new_client(int socketFd);
 	void handle_new_request(int socketFd);
 	void remove_socket_from_set(int socketFd, SocketSet& socket_set);
 	Answer create_answer(Request *request, Server *server);
-	Request receive_request(ClientSocket *socket, Server *server);
+	void receive_request(ClientSocket *socket, Server *server);
 	void send_answer(ClientSocket *socket, Answer *answer);
 };
 

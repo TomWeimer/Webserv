@@ -4,7 +4,7 @@
 // The purpose of this class is to take the array of tokens and assigns their value inside the
 // variable mentionned before
 Config::Config(ServerBlock& info, std::vector<LocationBlock>& locations, std::vector<KeyWord> listToken)
-	: _serverInfo(info), _locationsList(locations)
+	: _serverInfo(info), _locationsList(locations), _serverBlock(true)
 {
 	if (listToken.empty() == false && listToken[0].tokenType == "<server_start>")
 	{
@@ -16,19 +16,20 @@ Config::Config(ServerBlock& info, std::vector<LocationBlock>& locations, std::ve
 // Initialize the the tokens functions
 void Config::fill_token()
 {
-	_fill_token.insert(std::make_pair("<server_start>", &server_start));
-	_fill_token.insert(std::make_pair("<location>", &location));
-	_fill_token.insert(std::make_pair("<end>", &end));
-	_fill_token.insert(std::make_pair("<location>", &listen));
-	_fill_token.insert(std::make_pair("<socket>", &socket));
-	_fill_token.insert(std::make_pair("<host>", &host));
-	_fill_token.insert(std::make_pair("<port>", &port));
-	_fill_token.insert(std::make_pair("<root>", &root));
-	_fill_token.insert(std::make_pair("<index>", &index));
-	_fill_token.insert(std::make_pair("<server_name>", &server_name));
-	_fill_token.insert(std::make_pair("<allow_methods>", &allow_methods));
-	_fill_token.insert(std::make_pair("<client_limit>", &client_limit));
-	_fill_token.insert(std::make_pair("<error_pages>", &error_pages));
+	_fill_token.insert(std::make_pair("<server_start>", &Config::server_start));
+	_fill_token.insert(std::make_pair("<location>", &Config::location));
+	_fill_token.insert(std::make_pair("<end>", &Config::end));
+	_fill_token.insert(std::make_pair("<listen>", &Config::listen));
+	_fill_token.insert(std::make_pair("<socket>", &Config::socket));
+	_fill_token.insert(std::make_pair("<host>", &Config::host));
+	_fill_token.insert(std::make_pair("<port>", &Config::port));
+	_fill_token.insert(std::make_pair("<root>", &Config::root));
+	_fill_token.insert(std::make_pair("<index>", &Config::index));
+	_fill_token.insert(std::make_pair("<server_name>", &Config::server_name));
+	_fill_token.insert(std::make_pair("<allow_methods>", &Config::allow_methods));
+	_fill_token.insert(std::make_pair("<client_limit>", &Config::client_limit));
+	_fill_token.insert(std::make_pair("<error_pages>", &Config::error_pages));
+	_fill_token.insert(std::make_pair("<autoindex>", &Config::autoindex));
 }
 
 // loop in the listToken, and call the coresponding function
@@ -37,8 +38,11 @@ void Config::fill_config(std::vector<KeyWord> listToken)
 	std::vector<KeyWord>::iterator first;
 
 	first = listToken.begin();
-	for(; first != listToken.end(); first++) {
-		_fill_token[first->tokenType](*first);
+	for(; first != listToken.end(); first++) 
+	{
+		//std::cerr << *first << std::endl;
+		if (_fill_token.find(first->tokenType) != _fill_token.end())
+			(this->*_fill_token[first->tokenType])(*first);
 	}
 
 }
@@ -79,6 +83,7 @@ void Config::location(KeyWord keyword)
 // Indicate the end of a location block or the end of the serverBlock
 void Config::end(KeyWord keyword)
 {
+	(void)keyword;
 	if (_serverBlock == false)
 		_serverBlock = true;
 }
@@ -86,7 +91,8 @@ void Config::end(KeyWord keyword)
 // indicate a new port, socket or host to listen from, call the corresponding function with the name of their token.
 void Config::listen(KeyWord keyword)
 {
-	return (_fill_token[keyword.args[0].tokenType](keyword));
+	//std::cerr << keyword << std::endl;
+	return ((this->*_fill_token[keyword.args[0].tokenType])(keyword));
 }
 
 
@@ -139,6 +145,7 @@ void Config::root(KeyWord keyword)
 // Add the indexes to the corresponding codeBlock
 void Config::index(KeyWord keyword)
 {
+
 	BlockParams *actualBlock;
 
 	actualBlock = obtainBlock();
@@ -182,6 +189,7 @@ void Config::client_limit(KeyWord keyword)
 // Add the error_pages to the corresponding codeBlock
 void Config::error_pages(KeyWord keyword)
 {
+
 	BlockParams *actualBlock;
 	std::string	path;
 	int			error_nb;
@@ -197,6 +205,19 @@ void Config::error_pages(KeyWord keyword)
 			actualBlock->error_pages.insert(std::make_pair(error_nb, path));
 		}
 	}
+}
+
+// Add the client_limit to the corresponding codeBlock
+void Config::autoindex(KeyWord keyword)
+{
+	std::string tmp;
+	BlockParams *actualBlock;
+
+	actualBlock = obtainBlock();
+	if (keyword.args[0].valueToken == "on")
+		actualBlock->autoindex = true;
+	else
+		actualBlock->autoindex = false;
 }
 
 Config::~Config() {}
