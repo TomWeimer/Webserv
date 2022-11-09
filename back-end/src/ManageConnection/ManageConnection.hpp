@@ -9,7 +9,6 @@
 #include "SocketSet.hpp"
 #include "Register.hpp"
 #include "../Server/Server.hpp"
-#include "../Client/Client.hpp"
 
 class ManageConnection
 {
@@ -40,7 +39,6 @@ private:
 	struct timeval			_timeout;
 	std::vector<Server*>&	_servers;
 	int _max_socket;
-	std::map<int, Client>	_clients;
 	Register				_register;
 	SocketSet				_sockets_ready;
 	SocketSet				_all_sockets;

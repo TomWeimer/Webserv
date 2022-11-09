@@ -36,7 +36,7 @@ void RequestHandler::assign_content(std::string request)
 
 std::vector<KeyWord> RequestHandler::parse_request()
 {
-	Lexer	lexer(Vocabulary(".tools/HTTP.ebnf"));
+	Lexer	lexer(Vocabulary("./back-end/.tools/HTTP.ebnf"));
 
 	lexer.set_input(_request->_line);
 	return (lexer.lexeme());

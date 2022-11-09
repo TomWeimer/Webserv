@@ -1,7 +1,7 @@
 #ifndef REQUEST_HPP
 #define REQUEST_HPP
 
-#include "../utils/Parsing/Lexer/Lexer.hpp"
+#include "../Parsing/Lexer/Lexer.hpp"
 #include "../Server/Server.hpp"
 #include <vector>
 

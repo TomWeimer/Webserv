@@ -12,9 +12,7 @@ INCLUDE	:= $(INC)
 ##------------------------------------------------------------------------------##
 ##								SOURCES											##
 ##------------------------------------------------------------------------------##
-SRC	:=	Request/Request.cpp\
-		Answer/Answer.cpp\
-		Server/Server.cpp\
+SRC	:=	Server/Server.cpp\
 		Client/Client.cpp\
 		ManageConnection/ManageConnection.cpp\
 		ManageConnection/Register.cpp\
@@ -27,6 +25,11 @@ SRC	:=	Request/Request.cpp\
 		utils/Parsing/Lexer/Lexer.cpp\
 		utils/Parsing/Rule/Rule.cpp\
 		utils/Parsing/Vocabulary/Vocabulary.cpp\
+		Request/Request.cpp\
+		Answer/Answer.cpp\
+		Answer/AnswerBody.cpp\
+		Answer/AnswerHeader.cpp\
+		Answer/AnswerStatus.cpp\
 
 SRC_MAIN = main.cpp
 

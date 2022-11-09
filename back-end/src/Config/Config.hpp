@@ -1,6 +1,6 @@
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
-#include "../utils/Parsing/Lexer/Lexer.hpp"
+#include "../Parsing/Lexer/Lexer.hpp"
 #include <iostream>
 #include <vector>
 #include <map>

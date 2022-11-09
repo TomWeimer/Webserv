@@ -1,7 +1,7 @@
 ##------------------------------------------------------------------------------##
 ## 								 THE TARGET										##
 ##------------------------------------------------------------------------------##
-TARGET	:= server
+TARGET	:= PROGRAMM
 
 ##------------------------------------------------------------------------------##
 ##								HEADERS											##
@@ -12,30 +12,36 @@ INCLUDE	:= $(INC)
 ##------------------------------------------------------------------------------##
 ##								SOURCES											##
 ##------------------------------------------------------------------------------##
-SRC	:=	src/Server/Server.cpp\
-		src/Server/HandleConnection.cpp\
-		src/Server/Config/Config.cpp\
-		src/Server/http/Answer.cpp\
-		src/Server/http/Request.cpp\
-		src/Server/socket/Socket.cpp\
-		src/utils/utils.cpp\
-		src/utils/Parsing/Input/Input.cpp\
-		src/utils/Parsing/Lexer/Lexer.cpp\
-		src/utils/Parsing/Rule/Rule.cpp\
-		src/utils/Parsing/Vocabulary/Vocabulary.cpp\
+SRC	:=	Server/Server.cpp\
+		ManageConnection/ManageConnection.cpp\
+		ManageConnection/Register.cpp\
+		ManageConnection/SocketSet.cpp\
+		Socket/ClientSocket.cpp\
+		Socket/ServerSocket.cpp\
+		Config/Config.cpp\
+		Webserv/Webserv.cpp\
+		Parsing/Input/Input.cpp\
+		Parsing/Lexer/Lexer.cpp\
+		Parsing/Rule/Rule.cpp\
+		Parsing/Vocabulary/Vocabulary.cpp\
+		Request/Request.cpp\
+		Answer/Answer.cpp\
+		Answer/AnswerBody.cpp\
+		Answer/AnswerHeader.cpp\
+		Answer/AnswerStatus.cpp\
 
-SRC_MAIN = src/main.cpp
+SRC_MAIN = main.cpp
 
 SRC_MAIN += $(SRC)
 
-SRC_TEST = tests/src/main.cpp tests/src/testSettings.cpp tests/src/test-utils.cpp tests/src/Logfile.cpp tests/src/test_http_parsing.cpp
+SRC_TEST = tests/main.cpp tests/testSettings.cpp tests/test-utils.cpp tests/Logfile.cpp tests/test_http_parsing.cpp
 SRC_TEST += $(SRC)
 		
 
 # Src directory
-SRC_DIR		:=	./back-end/
+SRC_DIR		:=	./back-end/src/
 # Subdirectories of src
-SRCS_SUBDIR := ./back-end/src ./back-end/src/Server ./back-end/src/Server/http ./back-end/src/Server/config ./back-end/src/Server/socket  ./back-end/src/utils   ./back-end/src/utils/Parsing ./back-end/src/utils/Parsing/Vocabulary ./back-end/src/utils/Parsing/Rule ./back-end/src/utils/Parsing/Input ./back-end/src/utils/Parsing/Lexer ./back-end/tests/src
+SRCS_SUBDIR := ./back-end/src/Server ./back-end/src/Config ./back-end/src/ManageConnection ./back-end/src/Webserv ./back-end/src/Socket ./back-end/src/Request ./back-end/src/Answer   ./back-end/src/Parsing ./back-end/src/Parsing/Vocabulary ./back-end/src/Parsing/Rule ./back-end/src/Parsing/Input ./back-end/src/Parsing/Lexer
 
 # Full paths sources
 SRCS			:= $(addprefix $(SRC_DIR), $(SRC_MAIN))
@@ -50,7 +56,7 @@ OBJ := $(SRCS:.cpp=.o)
 OBJ_TEST := $(SRCS_TEST:.cpp=.o)
 
 # Objects directory
-OBJ_DIR	:= obj/
+OBJ_DIR	:= ./obj/
 # From str to obj/
 OBJS := $(subst $(SRC_DIR), $(OBJ_DIR), $(OBJ))
 OBJS_TEST := $(subst $(SRC_DIR), $(OBJ_DIR), $(OBJ_TEST))

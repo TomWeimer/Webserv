@@ -11,6 +11,9 @@
 <host> = <number> , "." , <number> , "." , <number> , "." , <number>
 <port> = <number>
 <location> = "location" <location_modifier> <string> "{"
+<return> = "return" <number> <string>
+<rewrite> = "rewrite" <string>
+
 <location_modifier> = "="
 <number> = { <digits> }
 <digits> = ( "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" )

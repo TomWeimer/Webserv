@@ -1,11 +1,8 @@
-#include "Server/Server.hpp"
+#include "Webserv/Webserv.hpp"
 
 int main(int argc, char *argv[])
 {
-	std::string configFile;
+	Webserv webserv;
 	if (argc == 2)
-		configFile = argv[1];
-   
-    Server server(configFile);
-	server.start();
+		webserv.start(argv[1]);
 }

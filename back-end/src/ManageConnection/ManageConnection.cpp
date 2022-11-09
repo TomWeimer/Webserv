@@ -186,7 +186,6 @@ void ManageConnection::add_socket(Server* server, ClientSocket* new_socket, Sock
 // remove a socket from the set of select
 void ManageConnection::remove_socket_from_set(int socketFd, SocketSet& socket_set)
 {
-	_clients.erase(socketFd);
 	FD_CLR(socketFd, socket_set.get_set());
 }
 
