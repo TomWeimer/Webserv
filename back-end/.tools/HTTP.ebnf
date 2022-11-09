@@ -8,6 +8,9 @@
 
 <http_version> = ( "HTTP/1.0" |  "HTTP/1.1" )
 
+<chunked_request> = "Transfer-Encoding:"  <chunked>
+<chunked> = "chunked"
+
 <Host> = "Host:" <uri-host> | <uri-socket>
 <uri-host> = <ip_address>
 <uri-socket> = ( <ip_address> | "localhost" ) , ":" , <port>
