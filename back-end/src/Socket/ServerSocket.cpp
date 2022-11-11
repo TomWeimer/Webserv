@@ -1,14 +1,35 @@
 #include "ServerSocket.hpp"
+#include <sstream>
+
+int ipToInt(int first, int second, int third, int fourth)
+{
+    return ((first << 24) | (second << 16) | (third << 8) | (fourth));
+}
+
+in_addr_t ip_to_address(std::string ip)
+{
+	std::cerr << "ip: " << ip << std::endl;
+	std::stringstream s(ip);
+	int first, second, third, fourth; //to store the 4 ints
+	int internet_address;
+	
+	char dot; //to temporarily store the '.'
+	s >> first >> dot >> second>> dot >> third>> dot >> fourth;
+	internet_address = ipToInt(first, second, third, fourth);
+	return (static_cast<in_addr_t>(ntohl(internet_address)));
+}
 
 ServerSocket::ServerSocket(int family, int port, std::string ip)
 {
 	int yes = 1;
 	_name.sin_family = family;
 	_name.sin_port = htons(port);
-	_name.sin_addr.s_addr = inet_addr(ip.c_str());
+	_name.sin_addr.s_addr = ip_to_address(ip);
 	this->socket();
 	setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
+	std::cerr << "newClient" << std::endl;
 	this->bind();
+	std::cerr << "newClient" << std::endl;
 }
 
 ServerSocket::ServerSocket(const ServerSocket &origin)
@@ -16,7 +37,7 @@ ServerSocket::ServerSocket(const ServerSocket &origin)
 {
 	_name.sin_family = origin._name.sin_family;
 	_name.sin_port = htons(origin._name.sin_port);
-	_name.sin_addr.s_addr = origin._name.sin_addr.s_addr;
+	_name.sin_addr.s_addr = ntohl(origin._name.sin_addr.s_addr);
 }
 
 ServerSocket &ServerSocket::operator=(const ServerSocket & origin)
@@ -25,7 +46,7 @@ ServerSocket &ServerSocket::operator=(const ServerSocket & origin)
 		return (*this);
 	_name.sin_family = origin._name.sin_family;
 	_name.sin_port = htons(origin._name.sin_port);
-	_name.sin_addr.s_addr = origin._name.sin_addr.s_addr;
+	_name.sin_addr.s_addr = ntohl(origin._name.sin_addr.s_addr);;
 	return (*this);
 }
 
@@ -39,7 +60,10 @@ void ServerSocket::socket() {
 void ServerSocket::bind()
 {
 	if (::bind(_fd, (sockaddr *)(&_name), sizeof(_name)) == -1)
+	{
+		std::cerr << "bind failed" << std::endl;
 		throw (std::exception());
+	}
 }
 
 void ServerSocket::listen(int queue)

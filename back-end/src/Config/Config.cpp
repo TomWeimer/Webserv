@@ -104,14 +104,19 @@ void Config::socket(KeyWord keyword)
 {
 	Token		*arg;
 	std::string tmp;
+	std::string host;
 	size_t		pos;
 
 	arg = &keyword.args[0];
 	pos = arg->valueToken.find_first_of(':');
-	tmp = arg->valueToken.substr(0, pos + 1);
+	host = arg->valueToken.substr(0, pos);
+	if (host == "localhost")
+		host = "127.0.0.1";
+	_serverInfo.host.push_back(host);
+	tmp = arg->valueToken.substr(pos + 1);
 	_serverInfo.port.push_back((int)std::strtol(tmp.c_str(), NULL, 10));
-	tmp = arg->valueToken.substr(pos + 1, arg->valueToken.size() - (pos + 1));
-	_serverInfo.host.push_back(tmp);	
+	std::cerr << _serverInfo.host.back() << std::endl;
+	std::cerr << _serverInfo.port.back() << std::endl;
 }
 
 // The argument of listen is an host (eg: 0.0.0.0)
@@ -120,6 +125,8 @@ void Config::host(KeyWord keyword)
 {
 	std::string tmp;
 	tmp = keyword.args[0].valueToken;
+	if (tmp == "localhost")
+		tmp = "127.0.0.1";
 	_serverInfo.host.push_back(tmp);
 	_serverInfo.port.push_back(80);
 }
