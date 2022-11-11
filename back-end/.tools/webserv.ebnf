@@ -1,6 +1,6 @@
 <server_start> = "server" "{"
 <server_name> = "server_name" <string>
-<listen> = "listen" <socket> | <port> | <host> "{"
+<listen> = "listen" <socket> | <port> | <host>
 <root> = "root" <string>
 <allow_methods> = "allow_methods" { <string> }
 <autoindex> = "autoindex"  <string>
@@ -8,7 +8,7 @@
 <client_limit> = "client_body_limit" <number>
 <error_pages> = "error_page"  { <number> }  <string>
 <socket> = <host> , ":" , <port>
-<host> = <number> , "." , <number> , "." , <number> , "." , <number>
+<host> =  ( ( <number> , "." , <number> , "." , <number> , "." , <number> ) | "localhost" )
 <port> = <number>
 <location> = "location" <location_modifier> <string> "{"
 <return> = "return" <number> <string>
