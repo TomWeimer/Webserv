@@ -41,7 +41,7 @@ std::string Answer::create_message()
 
 	if (_request->_target == "/cgi")
 	{
-			execute_cgi_request();
+		execute_cgi_request();
 	}
 
 	tmp = _body.obtain_body(&_header);
@@ -58,7 +58,12 @@ std::string Answer::create_message()
 
 void	Answer::set_cgi_env(){
 		char **env = new char*[18];
+		char *path = new char[2000];
 		std::string request_mtd = "REQUEST_METHOD=" + _request->_method;
+		if (!getwd(path))
+			perror("getwd");
+		std::string path_file = path;
+		path_file += "/front-end/html/test.html";
 
 		env[0] = strdup("SERVER_NAME=127.0.0.1");
 		env[1] = strdup("CONTENT_TYPE=text/html; charset=utf-8");
@@ -66,10 +71,10 @@ void	Answer::set_cgi_env(){
 		env[3] = strdup("GATEWAY_INTERFACE=CGI/1.1");
 		env[4] = strdup("FILE_UPLOADS=On");
 		env[5] = strdup("QUERY_STRING=");
-		env[6] = strdup("PATH_INFO=/Users/yacinebentayeb/Desktop/Webserv/front-end/html/test.html");
-		env[7] = strdup("PATH_TRANSLATED=/Users/yacinebentayeb/Desktop/Webserv/front-end/html/test.html");
+		env[6] = strdup(("PATH_INFO=" + path_file).c_str());
+		env[7] = strdup(("PATH_TRANSLATED=" + path_file).c_str());
 		env[8] = strdup("REMOTE_HOST=");
-		env[9] = strdup("REQUEST_URI=/Users/yacinebentayeb/Desktop/Webserv/front-end/html/test.html");
+		env[9] = strdup(("REQUEST_URI=" + path_file).c_str());
 		env[10] = strdup("REDIRECT_STATUS=0");
 		if (_request->_method == "POST")
 		{
