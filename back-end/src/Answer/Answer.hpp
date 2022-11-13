@@ -15,10 +15,13 @@ class Answer
 	char**						_cgi_env; // we could make a cgi class
 	std::string					_cgi_header;
 	std::string					_cgi_body;
+	std::string					_cgi_status;
 
 	std::string create_message();
 	void        set_cgi_env();
 	void 	    split_cgi_answer(std::string &answer);
+	void		send_to_cgi(int pip_to_cgi[2], int pip_from_cgi[2]);
+	void		receive_from_cgi(int pip_to_cgi[2], int pip_from_cgi[2], int pid);	
 
 public:
 	Answer(Server *server, Request *request);

@@ -56,7 +56,7 @@ std::string Answer::create_message()
 
 }
 
-void	Answer::set_cgi_env(){
+void	Answer::set_cgi_env(){ // set the environment variables for the cgi
 		char **env = new char*[18];
 		char *path = new char[2000];
 		std::string request_mtd = "REQUEST_METHOD=" + _request->_method;
@@ -93,22 +93,25 @@ void	Answer::set_cgi_env(){
 
 
 void	Answer::execute_cgi_request(){
-	
 	int pip_to_cgi[2];
 	int pip_from_cgi[2];
 
-	set_cgi_env();
+	set_cgi_env(); // set env for cgi
 	if (pipe(pip_to_cgi) != 0 || pipe(pip_from_cgi) != 0)
 		perror("pipe");
 	int pid = fork();
 	if (pid == 0)
-	{
+		send_to_cgi(pip_to_cgi, pip_from_cgi);
+	else
+		receive_from_cgi(pip_to_cgi, pip_from_cgi, pid);
+}
+
+void Answer::send_to_cgi(int pip_to_cgi[2], int pip_from_cgi[2]){
 		char **argv = new char*[3];
 		char *path = new char[5000];
 
 		if (!getwd(path))
 			perror("getwd");
-
 		argv[0] = strdup(strcat(path, "/cgi/cgi_tester"));
 		if (_request->_method == "POST")
 			argv[1] = strdup(strcat(path, "/front-end/html/index2.html"));
@@ -128,31 +131,33 @@ void	Answer::execute_cgi_request(){
 		delete []path;
 		delete []argv; 
 		delete []_cgi_env; // TODO: check if it needs to delete each char * individually
-	}
-	else
-	{
-		int status;
-		close(pip_to_cgi[0]);
-		close(pip_from_cgi[1]);
-		if (_request->_method == "POST")
-		{
-			if (write(pip_to_cgi[1], _request->_body.c_str(), _request->_body.size()) == -1)
-				perror("write");
-		}
-		close(pip_to_cgi[1]);
-		pip_to_cgi[1] = -1;
-		if (waitpid(pid, &status, 0) == -1)
-			perror("waitpid");
-		std::string cgi_answer = read_answer(pip_from_cgi[0]);
-		split_cgi_answer(cgi_answer);
-		std::cout << "cgi_header: " << _cgi_header << std::endl;
-		std::cout << "cgi_body: " << _cgi_body << std::endl;
-		close(pip_from_cgi[0]);
-		delete _cgi_env; // TODO: check if it needs to delete each char * individually
-	}
 }
 
+void Answer::receive_from_cgi(int pip_to_cgi[2], int pip_from_cgi[2], int pid){
+	int status;
+	close(pip_to_cgi[0]);
+	close(pip_from_cgi[1]);
+	if (_request->_method == "POST")
+	{
+		if (write(pip_to_cgi[1], _request->_body.c_str(), _request->_body.size()) == -1)
+			perror("write");
+	}
+	close(pip_to_cgi[1]);
+	pip_to_cgi[1] = -1;
+	if (waitpid(pid, &status, 0) == -1)
+		perror("waitpid");
+	std::string cgi_answer = read_answer(pip_from_cgi[0]);
+	split_cgi_answer(cgi_answer);
+	std::cout << "cgi_status: " << _cgi_status << std::endl;
+	std::cout << "cgi_header: " << _cgi_header << std::endl;
+	std::cout << "cgi_body: " << _cgi_body << std::endl;
+	close(pip_from_cgi[0]);
+	delete _cgi_env; // TODO: check if it needs to delete each char * individually
+}
+
+
 void Answer::split_cgi_answer(std::string &answer){
+	_cgi_status = answer.substr(0, answer.find("\r\n"));
     answer.erase(0, answer.find_first_of("\r\n") + 2);
     _cgi_header = answer.substr(0, answer.find_first_of("\r\n\r\n"));
     answer.erase(0, _cgi_header.size() + 4);
