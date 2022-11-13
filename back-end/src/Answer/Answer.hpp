@@ -4,6 +4,7 @@
 #include "../Request/Request.hpp"
 #include "AnswerHeader.hpp"
 #include "AnswerStatus.hpp"
+#include "unistd.h"
 
 class Answer
 {
@@ -11,16 +12,19 @@ class Answer
 	Server*						_server;
 	Request*					_request;
 	std::vector<std::string>	_headerLists;
-	char**						_cgi_env;
+	char**						_cgi_env; // we could make a cgi class
+	std::string					_cgi_header;
+	std::string					_cgi_body;
 
 	std::string create_message();
-	void        set_cgi_env(std::string method);
+	void        set_cgi_env();
+	void 	    split_cgi_answer(std::string &answer);
 
 public:
 	Answer(Server *server, Request *request);
 	~Answer();
 	std::string message();
-	void	cgi_get_request();
+	void	execute_cgi_request();
 	void	cgi_post_request();
 };
 

@@ -31,7 +31,8 @@ void RequestHandler::assign_content(std::string request)
 
 	pos = request.find("\r\n\r\n");
 	_request->_line = request.substr(0, pos);
-	_request->_body = request.substr(pos + 3);
+	_request->_body = request.substr(pos);
+	// _request->_body = request.substr(pos + 3); TODO ancienne version y'a t'il une raison pour laquelle on avait +3 ?
 }
 
 std::vector<KeyWord> RequestHandler::parse_request()

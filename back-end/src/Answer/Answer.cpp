@@ -1,6 +1,6 @@
 #include "Answer.hpp"
 
-std::string readContent(int fd)
+std::string read_answer(int fd)
 {
     std::string ret;
     char buf[4096 + 1];
@@ -41,8 +41,7 @@ std::string Answer::create_message()
 
 	if (_request->_target == "/cgi")
 	{
-		if (_request->_method == "GET")
-			cgi_get_request();
+			execute_cgi_request();
 	}
 
 	tmp = _body.obtain_body(&_header);
@@ -57,16 +56,13 @@ std::string Answer::create_message()
 
 }
 
-void	Answer::set_cgi_env(std::string method){
+void	Answer::set_cgi_env(){
 		char **env = new char*[18];
+		std::string request_mtd = "REQUEST_METHOD=" + _request->_method;
+
 		env[0] = strdup("SERVER_NAME=127.0.0.1");
 		env[1] = strdup("CONTENT_TYPE=text/html; charset=utf-8");
-		if (method == "POST")
-			env[2] = strdup("REQUEST_METHOD=POST");
-		else if (method == "DELETE")
-			env[2] = strdup("REQUEST_METHOD=DELETE");
-		else
-			env[2] = strdup("REQUEST_METHOD=GET");
+		env[2] = strdup((char *)request_mtd.c_str());
 		env[3] = strdup("GATEWAY_INTERFACE=CGI/1.1");
 		env[4] = strdup("FILE_UPLOADS=On");
 		env[5] = strdup("QUERY_STRING=");
@@ -75,9 +71,9 @@ void	Answer::set_cgi_env(std::string method){
 		env[8] = strdup("REMOTE_HOST=");
 		env[9] = strdup("REQUEST_URI=/Users/yacinebentayeb/Desktop/Webserv/front-end/html/test.html");
 		env[10] = strdup("REDIRECT_STATUS=0");
-		if (method == "POST")
+		if (_request->_method == "POST")
 		{
-			std::string content_len = "CONTENT_LENGTH=" + std::to_string(_request->_body.size());
+			std::string content_len = "CONTENT_LENGTH="+ std::to_string(_request->_body.size());
 			env[11] = strdup(content_len.c_str());
 		}
 		else
@@ -91,21 +87,29 @@ void	Answer::set_cgi_env(std::string method){
 }
 
 
-void	Answer::cgi_get_request(){
-	char **argv = new char*[3];
-	argv[0] = strdup("/Users/yacinebentayeb/Desktop/Webserv/cgi/cgi_server");
-	argv[1] = strdup("/Users/yacinebentayeb/Desktop/Webserv/front-end/html/index.html");
-	argv[2] = 0;
-	set_cgi_env("GET");
+void	Answer::execute_cgi_request(){
+	
 	int pip_to_cgi[2];
 	int pip_from_cgi[2];
 
+	set_cgi_env();
 	if (pipe(pip_to_cgi) != 0 || pipe(pip_from_cgi) != 0)
 		perror("pipe");
-
 	int pid = fork();
 	if (pid == 0)
 	{
+		char **argv = new char*[3];
+		char *path = new char[5000];
+
+		if (!getwd(path))
+			perror("getwd");
+
+		argv[0] = strdup(strcat(path, "/cgi/cgi_tester"));
+		if (_request->_method == "POST")
+			argv[1] = strdup(strcat(path, "/front-end/html/index2.html"));
+		else
+			argv[1] = strdup(strcat(path, "/front-end/html/index.html"));
+		argv[2] = 0;
 		if (dup2(pip_to_cgi[0], STDIN_FILENO) == -1)
 			perror("Can't duplicate pip_to_cgi to STDIN_FILENO");
 		if (dup2(pip_from_cgi[1], STDOUT_FILENO) == -1)
@@ -114,26 +118,38 @@ void	Answer::cgi_get_request(){
 		close(pip_from_cgi[1]);
 		close(pip_to_cgi[0]);
 		close(pip_to_cgi[1]);
-		if (execve("/Users/yacinebentayeb/Desktop/Webserv/cgi/cgi_tester", argv, _cgi_env) == -1)
+		if (execve(argv[0], argv, _cgi_env) == -1)
 			perror("execve");
+		delete []path;
+		delete []argv; 
+		delete []_cgi_env; // TODO: check if it needs to delete each char * individually
 	}
 	else
 	{
 		int status;
 		close(pip_to_cgi[0]);
 		close(pip_from_cgi[1]);
-		// for post request
-		// char *buf = new char[10000];
-		// write(pip_to_cgi[1], buf, 100);
-		// std::cerr << buf << std::endl;
+		if (_request->_method == "POST")
+		{
+			if (write(pip_to_cgi[1], _request->_body.c_str(), _request->_body.size()) == -1)
+				perror("write");
+		}
 		close(pip_to_cgi[1]);
 		pip_to_cgi[1] = -1;
 		if (waitpid(pid, &status, 0) == -1)
 			perror("waitpid");
-		std::string ret = readContent(pip_from_cgi[0]);
-		std::cout << ret << std::endl;
+		std::string cgi_answer = read_answer(pip_from_cgi[0]);
+		split_cgi_answer(cgi_answer);
+		std::cout << "cgi_header: " << _cgi_header << std::endl;
+		std::cout << "cgi_body: " << _cgi_body << std::endl;
 		close(pip_from_cgi[0]);
+		delete _cgi_env; // TODO: check if it needs to delete each char * individually
 	}
 }
 
-
+void Answer::split_cgi_answer(std::string &answer){
+    answer.erase(0, answer.find_first_of("\r\n") + 2);
+    _cgi_header = answer.substr(0, answer.find_first_of("\r\n\r\n"));
+    answer.erase(0, _cgi_header.size() + 4);
+    _cgi_body = answer;
+}
