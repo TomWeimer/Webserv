@@ -11,13 +11,17 @@ class Answer
 	Server*						_server;
 	Request*					_request;
 	std::vector<std::string>	_headerLists;
+	char**						_cgi_env;
 
 	std::string create_message();
+	void        set_cgi_env(std::string method);
 
 public:
 	Answer(Server *server, Request *request);
 	~Answer();
 	std::string message();
+	void	cgi_get_request();
+	void	cgi_post_request();
 };
 
 

@@ -106,7 +106,6 @@ void RequestHandler::verify_method()
 	else
 		_server->set_status_code(400);
 }
-
 void RequestHandler::verify_target()
 {
 	if (_server->is_valid_target(_request->_target) == false)
@@ -129,6 +128,7 @@ void RequestHandler::request_line(KeyWord &keyword)
 	target(keyword);
 	method(keyword);
 	version(keyword);
+
 }
 
 void RequestHandler::target(KeyWord &keyword) {

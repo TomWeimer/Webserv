@@ -183,6 +183,20 @@ bool Server::is_valid_method(std::string method, BlockParams* location)
 	return (false);
 }
 
+bool Server::is_valid_cgi(std::string cgi, BlockParams* location)
+{
+	std::vector<std::string>::iterator it;
+
+	std::cout << "blockParams root: " << location->root << std::endl;
+	for (it = location->cgi.begin(); it != location->cgi.end(); it++)
+	{
+		std::cout << *it << std::endl;
+		if (*it == cgi)
+			return (true);
+	}
+	return (false);
+}
+
 void Server::set_status_code(int number)
 {
 	if (_status_code == 0)

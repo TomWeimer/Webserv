@@ -32,6 +32,7 @@ public:
 	std::string		obtain_final_target(BlockParams *_location, std::string _target);
 	bool			is_valid_target(std::string _target);
 	bool			is_valid_method(std::string method, BlockParams *location);
+	bool			is_valid_cgi(std::string cgi, BlockParams *location);
 	bool			no_error();
 
 	void 			process_post(AnswerHeader* header_list, std::string& body, std::string target);
