@@ -38,6 +38,7 @@ void ManageConnection::Register::erase_entry(int sockfd)
 		_servers.erase(sockfd);
 }
 
+
 Server*	 ManageConnection::Register::find_server(int sockfd)
 {
 	//Socket *socket = _sockets.find(sockfd)->second;
@@ -61,6 +62,17 @@ int ManageConnection::Register::max()
 {
 	return (_sockets.rbegin()->first);
 }
+
+std::map<int, Socket *>	ManageConnection::Register::getSocket(){
+	return _sockets;
+}
+
+void	ManageConnection::Register::setSocket(std::map<int, Socket *> & other){
+	_sockets = other;
+}
+
+
+
 
 ManageConnection::Register::~Register()
 {

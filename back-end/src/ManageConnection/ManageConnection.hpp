@@ -25,10 +25,12 @@ class ManageConnection
 		void		add_entry(int sockfd, Server* server);
 		void		erase_entry(int sockfd);
 		void		add_listening_socket(int sockfd, Socket &socket, Server& server);
-		Server*	find_server(int sockfd);
+		Server*		find_server(int sockfd);
 		bool		is_registered(int sockfd);
 		int			max();
-		Socket	*operator[](int sockfd);
+		std::map<int, Socket *>	getSocket();
+		void		setSocket(std::map<int, Socket *> &other);
+		Socket		*operator[](int sockfd);
 		~Register();
 	};
 	
@@ -57,6 +59,7 @@ private:
 	void  obtain_sockets_ready_to_read();
 	void handle_new_connection_or_request();
 	int socket_is_ready_to_read(int fd);
+	void remove_all_client();
 	void add_socket(Server* server, ClientSocket* new_socket, SocketSet& socket_set);
 	void add_socket(Server* server, ServerSocket* new_socket, SocketSet& socket_set);
 
