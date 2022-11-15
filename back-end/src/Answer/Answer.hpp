@@ -37,6 +37,9 @@ class AnswerBody
 		void method_post();
 		void method_delete();
 		void select_method();
-		std::string obtain_body(AnswerHeader *status);
+		void new_error_page(std::string message);
+		void redirection_body();
+		void error_page(AnswerStatus* status);
+		std::string obtain_body(AnswerHeader *header, AnswerStatus* status);
 	};
 #endif

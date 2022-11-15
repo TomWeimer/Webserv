@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include <dirent.h>
 
 Server::Server(std::vector<KeyWord> tokens)
 	: _status_code(0)
@@ -56,10 +57,19 @@ Server::~Server()
 BlockParams *Server::find_location(std::string target)
 {
 	std::vector<LocationBlock>::iterator it;
+	std::string target_request;
+	std::string location_path;
 
 	for (it = _locationsList.begin(); it != _locationsList.end(); it++)
 	{
-		if (target == it->path)
+		if (it->root.empty() == true)
+			location_path = target_request = _info.root;
+		else
+			location_path = target_request = it->root;
+		location_path += it->path;
+		target_request += target;
+		std::cerr << target_request << " " <<  location_path << std::endl;
+		if (std::strncmp(target_request.c_str(),  location_path.c_str(), location_path.size()) == 0)
 			return &(*it);
 	}
 	return (&_info);
@@ -69,29 +79,137 @@ std::string Server::obtain_final_target(BlockParams *location, std::string targe
 {
 	std::string final_target;
 
-	final_target = location->root;
+	if (location->root.empty() == false)
+		final_target = location->root;
+	else
+		final_target = _info.root;
 	final_target += target;
-	std::cerr << final_target << std::endl;
+	std::cerr << "final target: " <<  final_target << std::endl;
 	return (final_target);
 }
 
-bool	Server::is_valid_target(std::string target)
+bool	Server::is_valid_target(std::string& target, BlockParams* location)
+{
+
+	std::cerr << "valid target: " << target << std::endl;
+	if (isDir(target) == true)
+	{
+		if ((location->autoindex == NONE && _info.autoindex == ON) || location->autoindex == ON)
+			return (true);
+		else if (search_index(target, location) == false)
+		{
+			set_status_code(503);
+			return (false);
+		}
+
+	}
+	return (file_exists(target));
+}
+
+bool	Server::file_exists(std::string target)
 {
 	std::ifstream	file;
 
 	file.open(target.c_str());
-	if (!file.is_open())
+	if (!file.is_open()) {
 		return (false);
+	}
 	file.close();
 	return (true);
 }
 
-void	Server::process_get(AnswerHeader* header, std::string& body, std::string target)
+
+bool	Server::search_index(std::string& target, BlockParams* location)
 {
-	body = obtain_body_content(target);
+	std::vector<std::string> *index_names;
+	std::vector<std::string>::iterator it;
+	std::string copy_target;
+
+	copy_target = target;
+	if (location->index.empty() == false)
+		index_names = &location->index;
+	else
+		index_names = &_info.index;
+	for (it = index_names->begin(); it != index_names->end(); it++)
+	{
+		if (file_exists(copy_target + *it) == true)
+		{
+			target += *it;
+			return (true);
+		}
+	}
+	return (false);
+
+}
+
+
+bool Server::isDir(std::string target)
+{
+	std::fstream fileOrDir(target.c_str());
+
+	if (fileOrDir.is_open() == false)
+	{
+		return (true);
+	}
+	fileOrDir.close();
+	return (false);
+}
+
+void	Server::process_get(AnswerHeader* header, std::string& body, std::string target, int directory_listing, std::string root)
+{
+	if (directory_listing == NONE && _info.autoindex != NONE)
+		directory_listing = _info.autoindex;
+	if (directory_listing == ON && isDir(target) == true)
+		body = display_directory_listing(target, root);
+	else
+		body = obtain_body_content(target);
 	header->add_header("Content-Length: " + NumberToString(body.size()));
 	set_status_code(200);
 }
+
+std::string Server::display_directory_listing(std::string target, std::string root)
+{
+	DIR* directory;
+	struct dirent *entry;
+	std::string result;
+
+	if (root.empty() == true)
+		root = _info.root;
+
+	result.append("<!DOCTYPE html>\n");
+	result.append("<html lang=\"en\">\n");
+	result.append("<head>\n");
+	result.append("</head>\n");
+	result.append("<body>\n");
+	result.append("\t<h1>Index of " + target + " </h1>\n");
+
+	directory = opendir(target.c_str());
+	if (!directory)
+		return "";
+	std::vector<struct dirent> entries;
+	while ((entry = readdir(directory)) != NULL)
+	{
+		entries.push_back(*entry);
+	}
+
+	for (std::vector<struct dirent>::iterator it = entries.begin(); it != entries.end(); it++)
+	{
+		std::string name(it->d_name);
+		std::string line = "<a href=\"";
+		line += target.substr(root.size());
+		if (line[line.size() - 1] != '/')
+			line += '/';
+		line += it->d_name;
+		line += "\">";
+		line += it->d_name;
+		line += "</a></br>\n";
+		result += line;
+	}
+	result += "</body>\r\n";
+	closedir(directory);
+	return (result);
+}
+
 
 void	Server::process_post(AnswerHeader* header, std::string& body, std::string target)
 {
@@ -173,11 +291,26 @@ std::string Server::obtain_body_content(std::string target)
 
 bool Server::is_valid_method(std::string method, BlockParams* location)
 {
-	std::vector<std::string>::iterator it;
+	std::vector<std::string>::iterator first;
+	std::vector<std::string>::iterator last;
 
-	for (it = location->allowed_methods.begin(); it != location->allowed_methods.end(); it++)
+	if (location->allowed_methods.empty() == true && _info.allowed_methods.empty() == true)
 	{
-		if (*it == method)
+		return (true);
+	}
+	if (location->allowed_methods.empty() == false)
+	{
+		first = location->allowed_methods.begin();
+		last = location->allowed_methods.end();
+	}
+	else
+	{
+		first = _info.allowed_methods.begin();
+		last = _info.allowed_methods.end();	
+	}
+	for (; first != last; first++)
+	{
+		if (*first == method)
 			return (true);
 	}
 	return (false);
@@ -201,6 +334,15 @@ bool Server::no_error()
 void Server::reset_status_code()
 {
 	_status_code = 0;
+}
+
+std::string Server::error_page()
+{
+	std::string content;
+
+	if (_info.error_pages.find(_status_code) == _info.error_pages.end())
+		return (content);
+	return (obtain_body_content(_info.error_pages[_status_code]));
 }
 
 std::string NumberToString ( size_t Number )

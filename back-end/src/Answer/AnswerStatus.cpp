@@ -16,6 +16,11 @@ std::string AnswerStatus::obtain_status_line(std::string version, int status_cod
 	return (status_line);
 }
 
+std::string AnswerStatus::message(int status_code)
+{
+	return (_status_code[status_code]);
+}
+
 void AnswerStatus::fill_error_message()
 {
 	_status_code.insert(std::make_pair(100, "100 Continue"));

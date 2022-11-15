@@ -21,6 +21,7 @@ void RequestHandler::analyze_request(std::string request)
 	assign_content(request);
 	tokens = parse_request();
 	assign_header(tokens);
+	std::cerr << "CGI: " << _request->_location->cgi.cgi_extension << std::endl;
 	expand_request();
 	verify_request();
 }
@@ -58,29 +59,27 @@ void RequestHandler::expand_request()
 	_request->_location = _server->find_location(_request->_target);
 	if (_request->_location->redirection.type != NONE)
 		_request->_target = expand_redirection();
-	else
-		_request->_target = expand_target();
+	_request->_target = expand_target();
 }
 
 std::string RequestHandler::expand_redirection()
 {
-	if (_request->_location->redirection.type == PERMANENT)
-	{
-		int status_code = _request->_location->redirection.status_code;
-		if (status_code != 301)
-		{
-			_server->set_status_code(status_code);
-			return ("");
-		}
-	}
-	// else if (_request->_location->redirection.type == TEMPORARY)
-	// _server->set_status_code(302);
+	int			status_code;
+	std::string redirection;
+
 	_request->_redirected = _request->_location->redirection.type;
-	return (_request->_location->redirection.text);
+	if (_request->_redirected == TEMPORARY)
+		status_code = 302;
+	else
+		status_code = _request->_location->redirection.status_code;
+	_server->set_status_code(status_code);
+	return ("");
 }
 
 std::string RequestHandler::expand_target()
 {
+	if (_request->_target.empty() == true)
+		return ("");
 	return (_server->obtain_final_target(_request->_location, _request->_target));
 }
 
@@ -109,8 +108,9 @@ void RequestHandler::verify_method()
 
 void RequestHandler::verify_target()
 {
-	if (_server->is_valid_target(_request->_target) == false)
+	if (_server->is_valid_target(_request->_target, _request->_location) == false)
 		_server->set_status_code(404);
+	std::cerr << "target index: " << _request->_target << std::endl;
 }
 
 
