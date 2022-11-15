@@ -11,6 +11,7 @@ class AnswerStatus
 
 	public:
 		void		add_header(std::string header);
+		std::string message(int status_code);
 		std::string	obtain_status_line(std::string version, int status_code);
 		AnswerStatus();
 		~AnswerStatus();

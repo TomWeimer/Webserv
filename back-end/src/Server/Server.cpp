@@ -216,6 +216,15 @@ void Server::reset_status_code()
 	_status_code = 0;
 }
 
+std::string Server::error_page()
+{
+	std::string content;
+
+	if (_info.error_pages.find(_status_code) == _info.error_pages.end())
+		return (content);
+	return (obtain_body_content(_info.error_pages[_status_code]));
+}
+
 std::string NumberToString ( size_t Number )
 {
 	std::ostringstream ss;

@@ -41,6 +41,7 @@ public:
 	bool			delete_check_if_file_exist(std::string target);
 
 	public:
+	std::string error_page();
 	void reset_status_code();
 	std::vector<LocationBlock>& get_location_list();
 	ServerSocket& operator[](int index);

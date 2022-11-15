@@ -22,7 +22,7 @@ std::string Answer::create_message()
 	std::string tmp;
 	std::string rtn;
 
-	tmp = _body.obtain_body(&_header);
+	tmp = _body.obtain_body(&_header, &_status);
 	rtn = _status.obtain_status_line(_request->_version, _server->get_status_code());
 	rtn += _header.obtain_headers();
 	rtn += "\r\n";
