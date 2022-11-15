@@ -107,8 +107,9 @@ void RequestHandler::verify_method()
 
 void RequestHandler::verify_target()
 {
-	if (_server->is_valid_target(_request->_target) == false)
+	if (_server->is_valid_target(_request->_target, _request->_location) == false)
 		_server->set_status_code(404);
+	std::cerr << "target index: " << _request->_target << std::endl;
 }
 
 

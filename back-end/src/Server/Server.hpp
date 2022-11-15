@@ -30,7 +30,7 @@ public:
 	ServerBlock		*get_server_info();
 	BlockParams		*find_location(std::string target);
 	std::string		obtain_final_target(BlockParams *_location, std::string _target);
-	bool			is_valid_target(std::string _target);
+	bool			is_valid_target(std::string& _target, BlockParams *_location);
 	bool			is_valid_method(std::string method, BlockParams *location);
 	bool			no_error();
 
@@ -41,6 +41,9 @@ public:
 	bool			delete_check_if_file_exist(std::string target);
 
 	public:
+	bool file_exists(std::string target);
+	bool	search_index(std::string& target, BlockParams *_location);
+	bool isDir(std::string target);
 	std::string error_page();
 	void reset_status_code();
 	std::vector<LocationBlock>& get_location_list();

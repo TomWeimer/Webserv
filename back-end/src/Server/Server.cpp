@@ -87,16 +87,65 @@ std::string Server::obtain_final_target(BlockParams *location, std::string targe
 	return (final_target);
 }
 
-bool	Server::is_valid_target(std::string target)
+bool	Server::is_valid_target(std::string& target, BlockParams* location)
+{
+
+	std::cerr << "valid target: " << target << std::endl;
+	if (isDir(target) == true && search_index(target, location) == false)
+	{
+		set_status_code(503);
+		return (false);
+	}
+	return (file_exists(target));
+}
+
+bool	Server::file_exists(std::string target)
 {
 	std::ifstream	file;
 
-	std::cerr << "valid target: " << target << std::endl;
 	file.open(target.c_str());
-	if (!file.is_open())
+	if (!file.is_open()) {
 		return (false);
+	}
 	file.close();
 	return (true);
+}
+
+
+bool	Server::search_index(std::string& target, BlockParams* location)
+{
+	std::vector<std::string> *index_names;
+	std::vector<std::string>::iterator it;
+	std::string copy_target;
+
+	copy_target = target;
+	if (location->index.empty() == false)
+		index_names = &location->index;
+	else
+		index_names = &_info.index;
+	for (it = index_names->begin(); it != index_names->end(); it++)
+	{
+		if (file_exists(copy_target + *it) == true)
+		{
+			target += *it;
+			return (true);
+		}
+	}
+	return (false);
+
+}
+
+
+bool Server::isDir(std::string target)
+{
+	std::fstream fileOrDir(target.c_str());
+
+	if (fileOrDir.is_open() == false)
+	{
+		return (true);
+	};
+	fileOrDir.close();
+	return (false);
 }
 
 void	Server::process_get(AnswerHeader* header, std::string& body, std::string target)
@@ -186,11 +235,26 @@ std::string Server::obtain_body_content(std::string target)
 
 bool Server::is_valid_method(std::string method, BlockParams* location)
 {
-	std::vector<std::string>::iterator it;
+	std::vector<std::string>::iterator first;
+	std::vector<std::string>::iterator last;
 
-	for (it = location->allowed_methods.begin(); it != location->allowed_methods.end(); it++)
+	if (location->allowed_methods.empty() == true && _info.allowed_methods.empty() == true)
 	{
-		if (*it == method)
+		return (true);
+	}
+	if (location->allowed_methods.empty() == false)
+	{
+		first = location->allowed_methods.begin();
+		last = location->allowed_methods.end();
+	}
+	else
+	{
+		first = _info.allowed_methods.begin();
+		last = _info.allowed_methods.end();	
+	}
+	for (; first != last; first++)
+	{
+		if (*first == method)
 			return (true);
 	}
 	return (false);
