@@ -56,31 +56,29 @@ void RequestHandler::assign_header(std::vector<KeyWord>& tokens)
 void RequestHandler::expand_request()
 {
 	_request->_location = _server->find_location(_request->_target);
-	// if (_request->_location->redirection.type != NONE)
-	// 	_request->_target = expand_redirection();
-	// else
+	if (_request->_location->redirection.type != NONE)
+		_request->_target = expand_redirection();
 	_request->_target = expand_target();
 }
 
 std::string RequestHandler::expand_redirection()
 {
-	if (_request->_location->redirection.type == PERMANENT)
-	{
-		int status_code = _request->_location->redirection.status_code;
-		if (status_code != 301)
-		{
-			_server->set_status_code(status_code);
-			return ("");
-		}
-	}
-	// else if (_request->_location->redirection.type == TEMPORARY)
-	// _server->set_status_code(302);
+	int			status_code;
+	std::string redirection;
+
+	if (_request->_redirected == TEMPORARY)
+		status_code = 302;
+	else
+		status_code = _request->_location->redirection.status_code;
+	_server->set_status_code(status_code);
 	_request->_redirected = _request->_location->redirection.type;
-	return (_request->_location->redirection.text);
+	return ("");
 }
 
 std::string RequestHandler::expand_target()
 {
+	if (_request->_target.empty() == true)
+		return ("");
 	return (_server->obtain_final_target(_request->_location, _request->_target));
 }
 
