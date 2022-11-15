@@ -10,6 +10,8 @@
 #define PERMANENT 1
 #define TEMPORARY 2
 #define NONE 0
+#define ON 1
+#define OFF 2
 
 struct Redirection 
 {
@@ -21,7 +23,7 @@ struct Redirection
 
 struct BlockParams
 {
-	bool								autoindex;
+	int									autoindex;
 	int									body_limit;
 	std::string							root;
 	std::vector<std::string>			index;
@@ -30,7 +32,7 @@ struct BlockParams
 	Redirection							redirection;
 
 	BlockParams()
-		: autoindex(false), body_limit(0), root("") {
+		: autoindex(NONE), body_limit(0), root("") {
 		redirection.type = NONE;
 	} 
 };

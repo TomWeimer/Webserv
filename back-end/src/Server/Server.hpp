@@ -36,9 +36,10 @@ public:
 
 	void 			process_post(AnswerHeader* header_list, std::string& body, std::string target);
 	bool			post_check_file_already_exist(std::string target);
-	void 			process_get(AnswerHeader* header_list, std::string& body, std::string target);
+	void 			process_get(AnswerHeader* header_list, std::string& body, std::string target, int directory_listing, std::string root);
 	void			process_delete(AnswerHeader* header_list, std::string& body, std::string target);
 	bool			delete_check_if_file_exist(std::string target);
+	std::string display_directory_listing(std::string target, std::string root);
 
 	public:
 	bool file_exists(std::string target);

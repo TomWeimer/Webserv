@@ -77,7 +77,7 @@ void AnswerBody::method_get()
 	else
 	{
 		if (_server->no_error())
-			_server->process_get(_header, _body, _request->_target);
+			_server->process_get(_header, _body, _request->_target, _request->_location->autoindex, _request->_location->root);
 	}
 }
 

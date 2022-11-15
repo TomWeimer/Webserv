@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include <dirent.h>
 
 Server::Server(std::vector<KeyWord> tokens)
 	: _status_code(0)
@@ -91,10 +92,16 @@ bool	Server::is_valid_target(std::string& target, BlockParams* location)
 {
 
 	std::cerr << "valid target: " << target << std::endl;
-	if (isDir(target) == true && search_index(target, location) == false)
+	if (isDir(target) == true)
 	{
-		set_status_code(503);
-		return (false);
+		if ((location->autoindex == NONE && _info.autoindex == ON) || location->autoindex == ON)
+			return (true);
+		else if (search_index(target, location) == false)
+		{
+			set_status_code(503);
+			return (false);
+		}
+
 	}
 	return (file_exists(target));
 }
@@ -143,17 +150,66 @@ bool Server::isDir(std::string target)
 	if (fileOrDir.is_open() == false)
 	{
 		return (true);
-	};
+	}
 	fileOrDir.close();
 	return (false);
 }
 
-void	Server::process_get(AnswerHeader* header, std::string& body, std::string target)
+void	Server::process_get(AnswerHeader* header, std::string& body, std::string target, int directory_listing, std::string root)
 {
-	body = obtain_body_content(target);
+	if (directory_listing == NONE && _info.autoindex != NONE)
+		directory_listing = _info.autoindex;
+	if (directory_listing == ON && isDir(target) == true)
+		body = display_directory_listing(target, root);
+	else
+		body = obtain_body_content(target);
 	header->add_header("Content-Length: " + NumberToString(body.size()));
 	set_status_code(200);
 }
+
+std::string Server::display_directory_listing(std::string target, std::string root)
+{
+	DIR* directory;
+	struct dirent *entry;
+	std::string result;
+
+	if (root.empty() == true)
+		root = _info.root;
+
+	result.append("<!DOCTYPE html>\n");
+	result.append("<html lang=\"en\">\n");
+	result.append("<head>\n");
+	result.append("</head>\n");
+	result.append("<body>\n");
+	result.append("\t<h1>Index of " + target + " </h1>\n");
+
+	directory = opendir(target.c_str());
+	if (!directory)
+		return "";
+	std::vector<struct dirent> entries;
+	while ((entry = readdir(directory)) != NULL)
+	{
+		entries.push_back(*entry);
+	}
+
+	for (std::vector<struct dirent>::iterator it = entries.begin(); it != entries.end(); it++)
+	{
+		std::string name(it->d_name);
+		std::string line = "<a href=\"";
+		line += target.substr(root.size());
+		if (line[line.size() - 1] != '/')
+			line += '/';
+		line += it->d_name;
+		line += "\">";
+		line += it->d_name;
+		line += "</a></br>\n";
+		result += line;
+	}
+	result += "</body>\r\n";
+	closedir(directory);
+	return (result);
+}
+
 
 void	Server::process_post(AnswerHeader* header, std::string& body, std::string target)
 {

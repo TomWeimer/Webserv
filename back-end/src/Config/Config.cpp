@@ -243,9 +243,9 @@ void Config::autoindex(KeyWord keyword)
 
 	actualBlock = obtainBlock();
 	if (keyword.args[0].valueToken == "on")
-		actualBlock->autoindex = true;
+		actualBlock->autoindex = ON;
 	else
-		actualBlock->autoindex = false;
+		actualBlock->autoindex = OFF;
 }
 
 Config::~Config() {}
