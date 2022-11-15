@@ -21,6 +21,12 @@ struct Redirection
 	
 };
 
+struct CGI_params
+{
+    std::string cgi_name;
+    std::string cgi_extension;
+};
+
 struct BlockParams
 {
 	int									autoindex;
@@ -30,6 +36,8 @@ struct BlockParams
 	std::map<int, std::string>			error_pages;
 	std::vector<std::string>			allowed_methods;
 	Redirection							redirection;
+	CGI_params                          cgi;
+
 
 	BlockParams()
 		: autoindex(NONE), body_limit(0), root("") {
@@ -82,6 +90,7 @@ private:
 	void autoindex(KeyWord keyword);
 	void return_redirection(KeyWord keyword);
 	void rewrite_redirection(KeyWord keyword);
+	void cgi(KeyWord keyword);
 
 public:
 	Config(ServerBlock &_info, std::vector<LocationBlock> &locationList, std::vector<KeyWord> listToken);

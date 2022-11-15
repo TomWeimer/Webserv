@@ -6,6 +6,7 @@
 Config::Config(ServerBlock& info, std::vector<LocationBlock>& locations, std::vector<KeyWord> listToken)
 	: _serverInfo(info), _locationsList(locations), _serverBlock(true)
 {
+	std::cerr << listToken << std::endl;
 	if (listToken.empty() == false && listToken[0].tokenType == "<server_start>")
 	{
 		fill_token();
@@ -32,6 +33,7 @@ void Config::fill_token()
 	_fill_token.insert(std::make_pair("<autoindex>", &Config::autoindex));
 	_fill_token.insert(std::make_pair("<return>", &Config::return_redirection));
 	_fill_token.insert(std::make_pair("<rewrite>", &Config::rewrite_redirection));
+	_fill_token.insert(std::make_pair("<cgi>", &Config::cgi));
 }
 
 // loop in the listToken, and call the coresponding function
@@ -246,6 +248,15 @@ void Config::autoindex(KeyWord keyword)
 		actualBlock->autoindex = ON;
 	else
 		actualBlock->autoindex = OFF;
+}
+
+void Config::cgi(KeyWord keyword)
+{
+    BlockParams *actualBlock;
+
+    actualBlock = obtainBlock();
+    actualBlock->cgi.cgi_extension = keyword.args[0].valueToken;
+    actualBlock->cgi.cgi_name = keyword.args[1].valueToken;
 }
 
 Config::~Config() {}

@@ -21,6 +21,7 @@ void RequestHandler::analyze_request(std::string request)
 	assign_content(request);
 	tokens = parse_request();
 	assign_header(tokens);
+	std::cerr << "CGI: " << _request->_location->cgi.cgi_extension << std::endl;
 	expand_request();
 	verify_request();
 }
