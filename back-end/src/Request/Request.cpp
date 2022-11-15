@@ -56,10 +56,10 @@ void RequestHandler::assign_header(std::vector<KeyWord>& tokens)
 void RequestHandler::expand_request()
 {
 	_request->_location = _server->find_location(_request->_target);
-	if (_request->_location->redirection.type != NONE)
-		_request->_target = expand_redirection();
-	else
-		_request->_target = expand_target();
+	// if (_request->_location->redirection.type != NONE)
+	// 	_request->_target = expand_redirection();
+	// else
+	_request->_target = expand_target();
 }
 
 std::string RequestHandler::expand_redirection()

@@ -56,10 +56,19 @@ Server::~Server()
 BlockParams *Server::find_location(std::string target)
 {
 	std::vector<LocationBlock>::iterator it;
+	std::string target_request;
+	std::string location_path;
 
 	for (it = _locationsList.begin(); it != _locationsList.end(); it++)
 	{
-		if (target == it->path)
+		if (it->root.empty() == true)
+			location_path = target_request = _info.root;
+		else
+			location_path = target_request = it->root;
+		location_path += it->path;
+		target_request += target;
+		std::cerr << target_request << " " <<  location_path << std::endl;
+		if (std::strncmp(target_request.c_str(),  location_path.c_str(), location_path.size()) == 0)
 			return &(*it);
 	}
 	return (&_info);
@@ -69,9 +78,12 @@ std::string Server::obtain_final_target(BlockParams *location, std::string targe
 {
 	std::string final_target;
 
-	final_target = location->root;
+	if (location->root.empty() == false)
+		final_target = location->root;
+	else
+		final_target = _info.root;
 	final_target += target;
-	std::cerr << final_target << std::endl;
+	std::cerr << "final target: " <<  final_target << std::endl;
 	return (final_target);
 }
 
@@ -79,6 +91,7 @@ bool	Server::is_valid_target(std::string target)
 {
 	std::ifstream	file;
 
+	std::cerr << "valid target: " << target << std::endl;
 	file.open(target.c_str());
 	if (!file.is_open())
 		return (false);
