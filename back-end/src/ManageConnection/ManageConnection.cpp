@@ -57,7 +57,8 @@ void  ManageConnection::obtain_sockets_ready_to_read()
 	if (timeout < 0)
 		exit(1);
 	if (timeout == 0)
-		std::cerr << "[ERROR] select() timeout\n" << std::endl; // removing clients
+		remove_all_client();
+		//std::cerr << "[ERROR] select() timeout\n" << std::endl; // removing clients
 }
 
 // Navigate through all the sockets and check if they received something
@@ -181,11 +182,24 @@ void ManageConnection::add_socket(Server* server, ClientSocket* new_socket, Sock
 	socket_set.add_socket(new_socket);
 }
 
-
-
 // remove a socket from the set of select
 void ManageConnection::remove_socket_from_set(int socketFd, SocketSet& socket_set)
 {
 	FD_CLR(socketFd, socket_set.get_set());
+}
+
+void ManageConnection::remove_all_client(){
+	std::map<int, Socket *>::iterator it;
+	std::map<int, Socket *> copy = _register.getSocket(); //could result in segfault otherwise
+
+	for (it = copy.begin(); it != copy.end(); it++){
+		if (!it->second->is_listening_port()) //client socket
+		{
+			close(it->first);
+			_all_sockets.remove_socket(it->first);
+			_register.erase_entry(it->first);
+		}
+	}
+	_register.setSocket(copy);
 }
 

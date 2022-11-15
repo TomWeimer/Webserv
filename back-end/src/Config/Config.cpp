@@ -26,6 +26,7 @@ void Config::fill_token()
 	_fill_token.insert(std::make_pair("<port>", &Config::port));
 	_fill_token.insert(std::make_pair("<root>", &Config::root));
 	_fill_token.insert(std::make_pair("<index>", &Config::index));
+	_fill_token.insert(std::make_pair("<cgi>", &Config::cgi));
 	_fill_token.insert(std::make_pair("<server_name>", &Config::server_name));
 	_fill_token.insert(std::make_pair("<allow_methods>", &Config::allow_methods));
 	_fill_token.insert(std::make_pair("<client_limit>", &Config::client_limit));
@@ -151,6 +152,20 @@ void Config::root(KeyWord keyword)
 
 	actualBlock = obtainBlock();
 	actualBlock->root = keyword.args[0].valueToken;
+}
+
+// Add the root to the corresponding codeBlock
+void Config::cgi(KeyWord keyword)
+{
+	// (void)keyword;
+	BlockParams *actualBlock;
+
+	actualBlock = obtainBlock();
+	for (std::vector<Token>::iterator it = keyword.args.begin(); it != keyword.args.end(); it++)
+	{
+		actualBlock->cgi.push_back(it->valueToken);
+		std::cout << it->valueToken << std::endl;
+	}
 }
 
 // Add the indexes to the corresponding codeBlock

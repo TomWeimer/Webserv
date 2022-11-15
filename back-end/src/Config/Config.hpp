@@ -35,6 +35,7 @@ struct BlockParams
 	std::vector<std::string>			index;
 	std::map<int, std::string>			error_pages;
 	std::vector<std::string>			allowed_methods;
+	std::vector<std::string>			cgi;
 	Redirection							redirection;
 	CGI_params                          cgi;
 
@@ -81,6 +82,7 @@ private:
 	void host(KeyWord keyword);
 	void port(KeyWord keyword);
 	void root(KeyWord keyword);
+	void cgi(KeyWord keyword);
 	void index(KeyWord keyword);
 	void location(KeyWord keyword);
 	void server_name(KeyWord keyword);

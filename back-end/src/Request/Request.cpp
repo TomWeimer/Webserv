@@ -32,7 +32,8 @@ void RequestHandler::assign_content(std::string request)
 
 	pos = request.find("\r\n\r\n");
 	_request->_line = request.substr(0, pos);
-	_request->_body = request.substr(pos + 3);
+	_request->_body = request.substr(pos);
+	// _request->_body = request.substr(pos + 3); TODO ancienne version y'a t'il une raison pour laquelle on avait +3 ?
 }
 
 std::vector<KeyWord> RequestHandler::parse_request()
@@ -105,7 +106,6 @@ void RequestHandler::verify_method()
 	else
 		_server->set_status_code(400);
 }
-
 void RequestHandler::verify_target()
 {
 	if (_server->is_valid_target(_request->_target, _request->_location) == false)
@@ -129,6 +129,7 @@ void RequestHandler::request_line(KeyWord &keyword)
 	target(keyword);
 	method(keyword);
 	version(keyword);
+
 }
 
 void RequestHandler::target(KeyWord &keyword) {

@@ -8,15 +8,16 @@
 struct Request
 {
 public:
-	std::string				_line;
-	std::string				_method;
-	std::string				_target;
-	std::string				_version;
-	std::string				_host;
-	std::vector<KeyWord>	_unknown;
-	std::string				_body;
-	BlockParams*			_location;
-	int						_redirected;
+	std::string					_line;
+	std::string					_method;
+	std::string					_target;
+	std::string					_version;
+	std::string					_host;
+	std::vector<KeyWord>		_unknown;
+	std::string					_body;
+	BlockParams*				_location;
+	int							_redirected;
+	bool						_is_cgi; //
 };
 
 class RequestHandler
@@ -46,6 +47,7 @@ private:
 	void		request_line(KeyWord &keyword);
 	void		target(KeyWord &keyword);
 	void		method(KeyWord &keyword);
+	void		cgi(KeyWord &keyword);
 	void		version(KeyWord &keyword);
 	void		host(KeyWord &keyword);
 	void		expand_request();
@@ -55,6 +57,7 @@ private:
 	void		verify_target();
 	void		verify_method();
 	void		verify_version();
+	void		verify_cgi();
 };
 
 #endif
