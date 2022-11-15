@@ -66,12 +66,12 @@ std::string RequestHandler::expand_redirection()
 	int			status_code;
 	std::string redirection;
 
+	_request->_redirected = _request->_location->redirection.type;
 	if (_request->_redirected == TEMPORARY)
 		status_code = 302;
 	else
 		status_code = _request->_location->redirection.status_code;
 	_server->set_status_code(status_code);
-	_request->_redirected = _request->_location->redirection.type;
 	return ("");
 }
 
