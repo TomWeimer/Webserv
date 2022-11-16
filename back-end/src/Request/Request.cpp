@@ -21,7 +21,7 @@ void RequestHandler::analyze_request(std::string request)
 	assign_content(request);
 	tokens = parse_request();
 	assign_header(tokens);
-	std::cerr << "CGI: " << _request->_location->cgi.cgi_extension << std::endl;
+	// std::cerr << "CGI: " << _request->_location->cgi.cgi_extension << std::endl;
 	expand_request();
 	verify_request();
 }
@@ -110,7 +110,7 @@ void RequestHandler::verify_target()
 {
 	if (_server->is_valid_target(_request->_target, _request->_location) == false)
 		_server->set_status_code(404);
-	std::cerr << "target index: " << _request->_target << std::endl;
+	// std::cerr << "target index: " << _request->_target << std::endl;
 }
 
 

@@ -8,7 +8,7 @@ int ipToInt(int first, int second, int third, int fourth)
 
 in_addr_t ip_to_address(std::string ip)
 {
-	std::cerr << "ip: " << ip << std::endl;
+	// std::cerr << "ip: " << ip << std::endl;
 	std::stringstream s(ip);
 	int first, second, third, fourth; //to store the 4 ints
 	int internet_address;
@@ -27,9 +27,9 @@ ServerSocket::ServerSocket(int family, int port, std::string ip)
 	_name.sin_addr.s_addr = ip_to_address(ip);
 	this->socket();
 	setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
-	std::cerr << "newClient" << std::endl;
+	// std::cerr << "newClient" << std::endl;
 	this->bind();
-	std::cerr << "newClient" << std::endl;
+	// std::cerr << "newClient" << std::endl;
 }
 
 ServerSocket::ServerSocket(const ServerSocket &origin)

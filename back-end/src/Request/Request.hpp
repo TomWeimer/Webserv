@@ -17,7 +17,7 @@ public:
 	std::string					_body;
 	BlockParams*				_location;
 	int							_redirected;
-	bool						_is_cgi; //
+	bool						_is_cgi;
 };
 
 class RequestHandler

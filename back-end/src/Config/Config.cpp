@@ -6,7 +6,7 @@
 Config::Config(ServerBlock& info, std::vector<LocationBlock>& locations, std::vector<KeyWord> listToken)
 	: _serverInfo(info), _locationsList(locations), _serverBlock(true)
 {
-	std::cerr << listToken << std::endl;
+	// std::cerr << listToken << std::endl;
 	if (listToken.empty() == false && listToken[0].tokenType == "<server_start>")
 	{
 		fill_token();
@@ -152,20 +152,6 @@ void Config::root(KeyWord keyword)
 
 	actualBlock = obtainBlock();
 	actualBlock->root = keyword.args[0].valueToken;
-}
-
-// Add the root to the corresponding codeBlock
-void Config::cgi(KeyWord keyword)
-{
-	// (void)keyword;
-	BlockParams *actualBlock;
-
-	actualBlock = obtainBlock();
-	for (std::vector<Token>::iterator it = keyword.args.begin(); it != keyword.args.end(); it++)
-	{
-		actualBlock->cgi.push_back(it->valueToken);
-		std::cout << it->valueToken << std::endl;
-	}
 }
 
 // Add the indexes to the corresponding codeBlock

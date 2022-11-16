@@ -214,8 +214,8 @@ std::string Request::getRequestType(){
 }
 
 std::string Request::getRout(){
-	std::cerr << "target: " <<  _target << std::endl;
-	std::cerr << "final target: " <<  _final_target << std::endl;
+	// std::cerr << "target: " <<  _target << std::endl;
+	// std::cerr << "final target: " <<  _final_target << std::endl;
 	std::cerr << (_actualBlock == NULL) << std::endl;
 	if (_actualBlock != NULL)
 	{

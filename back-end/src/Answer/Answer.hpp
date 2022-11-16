@@ -4,6 +4,7 @@
 #include "../Request/Request.hpp"
 #include "AnswerHeader.hpp"
 #include "AnswerStatus.hpp"
+#include "Cgi.hpp"
 #include "unistd.h"
 
 class Answer

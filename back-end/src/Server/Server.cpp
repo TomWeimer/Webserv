@@ -68,7 +68,7 @@ BlockParams *Server::find_location(std::string target)
 			location_path = target_request = it->root;
 		location_path += it->path;
 		target_request += target;
-		std::cerr << target_request << " " <<  location_path << std::endl;
+		// std::cerr << target_request << " " <<  location_path << std::endl;
 		if (std::strncmp(target_request.c_str(),  location_path.c_str(), location_path.size()) == 0)
 			return &(*it);
 	}
@@ -84,14 +84,14 @@ std::string Server::obtain_final_target(BlockParams *location, std::string targe
 	else
 		final_target = _info.root;
 	final_target += target;
-	std::cerr << "final target: " <<  final_target << std::endl;
+	// std::cerr << "final target: " <<  final_target << std::endl;
 	return (final_target);
 }
 
 bool	Server::is_valid_target(std::string& target, BlockParams* location)
 {
 
-	std::cerr << "valid target: " << target << std::endl;
+	// std::cerr << "valid target: " << target << std::endl;
 	if (isDir(target) == true)
 	{
 		if ((location->autoindex == NONE && _info.autoindex == ON) || location->autoindex == ON)
@@ -316,19 +316,6 @@ bool Server::is_valid_method(std::string method, BlockParams* location)
 	return (false);
 }
 
-bool Server::is_valid_cgi(std::string cgi, BlockParams* location)
-{
-	std::vector<std::string>::iterator it;
-
-	std::cout << "blockParams root: " << location->root << std::endl;
-	for (it = location->cgi.begin(); it != location->cgi.end(); it++)
-	{
-		std::cout << *it << std::endl;
-		if (*it == cgi)
-			return (true);
-	}
-	return (false);
-}
 
 void Server::set_status_code(int number)
 {

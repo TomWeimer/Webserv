@@ -32,7 +32,6 @@ public:
 	std::string		obtain_final_target(BlockParams *_location, std::string _target);
 	bool			is_valid_target(std::string& _target, BlockParams *_location);
 	bool			is_valid_method(std::string method, BlockParams *location);
-	bool			is_valid_cgi(std::string cgi, BlockParams *location);
 	bool			no_error();
 
 	void 			process_post(AnswerHeader* header_list, std::string& body, std::string target);
@@ -40,7 +39,7 @@ public:
 	void 			process_get(AnswerHeader* header_list, std::string& body, std::string target, int directory_listing, std::string root);
 	void			process_delete(AnswerHeader* header_list, std::string& body, std::string target);
 	bool			delete_check_if_file_exist(std::string target);
-	std::string display_directory_listing(std::string target, std::string root);
+	std::string		display_directory_listing(std::string target, std::string root);
 
 	public:
 	bool file_exists(std::string target);

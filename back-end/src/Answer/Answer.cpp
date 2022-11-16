@@ -35,15 +35,17 @@ std::string Answer::create_message()
 	AnswerBody		_body(_server, _request);
 	AnswerStatus	_status;
 	AnswerHeader	_header;
+	Cgi				_cgi(_server, _request);
 
 	std::string tmp;
 	std::string rtn;
 
 	tmp = _body.obtain_body(&_header, &_status);
-	if (_request->_target == "/cgi")
-	{
-		execute_cgi_request();
-	}
+
+	// if (_request->_target == "/cgi")
+	// {
+	// 	execute_cgi_request();
+	// }
 
 	tmp = _body.obtain_body(&_header, &_status);
 	rtn = _status.obtain_status_line(_request->_version, _server->get_status_code());

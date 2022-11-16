@@ -26,6 +26,7 @@ SRC	:=	Server/Server.cpp\
 		Parsing/Vocabulary/Vocabulary.cpp\
 		Request/Request.cpp\
 		Answer/Answer.cpp\
+		Answer/Cgi.cpp\
 		Answer/AnswerBody.cpp\
 		Answer/AnswerHeader.cpp\
 		Answer/AnswerStatus.cpp\
