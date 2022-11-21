@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<script src="code.js"></script>
+	<link rel="stylesheet" href="webserv.css">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Cutive+Mono&display=swap" rel="stylesheet">
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Webserv</title>
+</head>
+<body>
+	<div class="header">
+		<div class="content">
+			<button class="previous" onclick="go_to('index.html')"></button>
+			<p>&lt;Webserv&gt;</p><p class="method">post_method</p>
+			
+		</div>
+	</div>
+		<button class="circle" id="valid" onclick="post('valid')">Valid request</button><button class="circle" id="invalid" onclick="post('invalid')">Invalid request</button><button class="circle" id="custom" onclick="post('')">Custom request</button>
+		<button class="circle" id="removeFile" onclick="remove('new.html')">Remove file</button>
+		
+	
+</body>
+</html>

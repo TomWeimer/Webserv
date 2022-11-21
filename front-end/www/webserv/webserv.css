@@ -1,0 +1,185 @@
+* {
+	margin: 0;
+	padding: 0;
+	}
+
+.header {
+	padding: 0;
+	background-color: black;
+}
+
+.header .content {
+	text-align: center;
+	font-size: 65px;
+	font-family: 'Cutive Mono', monospace;
+	color:#ffffff;
+}
+.header .method
+{
+	position: absolute;
+	top: 2%;
+	left: 63%;
+	font-family: 'Pacifico', cursive;
+	color: blue;
+	font-size: 35px;
+}
+
+h1 {
+	font-size: 35px;
+}
+
+#greetings{
+	position:absolute;
+	left: 25%;
+	right: 25%;
+	margin: 10;
+	text-align:  center;
+	
+	background-color: #af1d31;
+	border-color:#180f4e;
+	border-style: solid;
+    border-radius: 10px;
+	border-width: 3px;
+	font-size: 22px;
+	color: rgb(255, 255, 255)
+}
+
+#greetings a{
+	color: white;
+}
+
+button.circle
+{
+	display: inline;
+	background-color: black;
+	border: 3px solid #000;
+	color: #000;
+	text-align: center;
+	border-radius: 50%;
+	height: 200px;
+    width: 200px;
+	font-size: 30px;
+	color: white;
+	line-height: 190px;
+}
+button:hover {
+	background-color: darkred;
+	transition: 0.2s;
+  }
+
+
+#left{
+	position: absolute;
+	left: 18%;
+	top: 30%;
+}
+
+#middle {
+	position: absolute;
+	left: calc(50% - 100px);
+	top: 30%;
+}
+
+#right{
+	position: absolute;
+	right: 18%;
+	top: 30%;
+}
+#valid {
+	font-size: 25px;
+	position: absolute;
+	left: 6%;
+	top: 30%;
+}
+#invalid {
+	font-size: 25px;
+	position: absolute;
+	left: calc(38% - 100px);
+	top: 30%;
+}
+
+#custom {
+	font-size: 25px;
+	position: absolute;
+	right: 30%;
+	top: 30%;
+}
+#removeFile
+{
+	font-size: 25px;
+	position: absolute;
+	right: 6%;
+	top: 30%;
+}
+
+#directoryListing{
+	font-size: 25px;
+	position: absolute;
+	left: calc(50% - 100px);
+	top: 60%;
+}
+
+
+#new_request{
+	font-size: 6em;
+	color: green;
+	text-align: center;
+	line-height: 70vh;
+}
+
+
+div.img {
+	display: inline;
+}
+
+
+button.previous
+{
+
+    background: url(img/previous.png);
+	background-size: 30px;
+    background-repeat: no-repeat;
+	width: 40px;
+	height: 40px;
+	border: 0;
+	position:absolute; 
+	left:30px;
+	top: 23px;
+}
+
+
+div.valid_text {
+	padding: 170px;
+	text-align: center;
+}
+
+div.delete_text {
+	color: red;
+	padding: 170px;
+	text-align: center;
+}
+
+div.valid_text h1 {
+	display: inline;
+	font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+	font-size: 100px;
+	padding-right:30px;
+	color: rgb(142, 215, 33);
+}
+div.valid_text p {
+	font-size: 25px;
+	padding-right:30px;
+	
+}
+
+
+div.attribution
+{
+	position: fixed;
+	bottom: 0;
+}
+a.attribution
+{
+	bottom: 0%;
+	font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+}

@@ -13,22 +13,22 @@ INCLUDE	:= $(INC)
 ##								SOURCES											##
 ##------------------------------------------------------------------------------##
 SRC	:=	Server/Server.cpp\
-		ManageConnection/ManageConnection.cpp\
-		ManageConnection/Register.cpp\
-		ManageConnection/SocketSet.cpp\
-		Socket/ClientSocket.cpp\
-		Socket/ServerSocket.cpp\
-		Config/Config.cpp\
-		Webserv/Webserv.cpp\
-		Parsing/Input/Input.cpp\
-		Parsing/Lexer/Lexer.cpp\
-		Parsing/Rule/Rule.cpp\
-		Parsing/Vocabulary/Vocabulary.cpp\
-		Request/Request.cpp\
-		Answer/Answer.cpp\
-		Answer/AnswerBody.cpp\
-		Answer/AnswerHeader.cpp\
-		Answer/AnswerStatus.cpp\
+		DirectoryListing/DirectoryListing.cpp\
+		http/Method/Method.cpp\
+		Manager/ConnectionManager.cpp\
+		Manager/Register.cpp\
+		Manager/SocketSet.cpp\
+		Server/Config/Config.cpp\
+		Socket/Client/ClientSocket.cpp\
+		Socket/Server/ServerSocket.cpp\
+		utils/utils.cpp\
+		utils/Parsing/Input/Input.cpp\
+		utils/Parsing/Lexer/Lexer.cpp\
+		utils/Parsing/Rule/Rule.cpp\
+		utils/Parsing/Vocabulary/Vocabulary.cpp\
+		http/Request/RequestMaker.cpp\
+		http/Response/ResponseMaker.cpp\
+	
 
 SRC_MAIN = main.cpp
 
@@ -41,7 +41,23 @@ SRC_TEST += $(SRC)
 # Src directory
 SRC_DIR		:=	./back-end/src/
 # Subdirectories of src
-SRCS_SUBDIR := ./back-end/src/Server ./back-end/src/Config ./back-end/src/ManageConnection ./back-end/src/Webserv ./back-end/src/Socket ./back-end/src/Request ./back-end/src/Answer   ./back-end/src/Parsing ./back-end/src/Parsing/Vocabulary ./back-end/src/Parsing/Rule ./back-end/src/Parsing/Input ./back-end/src/Parsing/Lexer
+SRCS_SUBDIR :=	./back-end/src/Server\
+				./back-end/src/Server/Config\
+				./back-end/src/Socket\
+				./back-end/src/Socket/Server\
+				./back-end/src/Socket/Client\
+				./back-end/src/DirectoryListing\
+				./back-end/src/Manager\
+				./back-end/src/http\
+				./back-end/src/http/Response\
+				./back-end/src/http/Request\
+				./back-end/src/http/Method\
+				./back-end/src/utils\
+				./back-end/src/utils/Parsing\
+				./back-end/src/utils/Parsing/Vocabulary\
+				./back-end/src/utils/Parsing/Rule\
+				./back-end/src/utils/Parsing/Input\
+				./back-end/src/utils/Parsing/Lexer
 
 # Full paths sources
 SRCS			:= $(addprefix $(SRC_DIR), $(SRC_MAIN))
