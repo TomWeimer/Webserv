@@ -1,18 +1,27 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
-#include "../Config/Config.hpp"
-#include "../Socket/ServerSocket.hpp"
-#include "../Answer/AnswerHeader.hpp"
+#include "../http/Response/ResponseMaker.hpp"
+#include "./Settings/Settings.hpp"
+#include "./Config/Config.hpp"
+#include "../Socket/Server/ServerSocket.hpp"
+#include "../Socket/Client/ClientSocket.hpp"
+#include "../http/Request/Request.hpp"
+#include "../http/Response/Response.hpp"
+
 
 class Server
 {
 private:
-	
-	ServerBlock						_info;
-	std::vector<LocationBlock>		_locationsList;
-	std::vector<ServerSocket>		_server_sockets;
-	int								_status_code;
-	
+	ServerBlock					_info;
+	std::vector<LocationBlock>	_locationsList;
+	std::vector<ServerSocket>	_server_sockets;
+	int							_status_code;
+
+public:
+	int							get_status_code() const 	{ return _status_code; }
+	int*							get_ptr_status_code() { return &_status_code; }
+	ServerBlock*				get_server_info()			{ return &_info; }
+	std::vector<LocationBlock>& get_location_list()			{ return _locationsList; }
 
 public:
 	Server(std::vector<KeyWord> tokens);
@@ -23,37 +32,24 @@ private:
 	void serverConfiguration(std::vector<KeyWord> tokens);
 
 public:
-	int				get_status_code()const;
-	void			set_status_code(int number);
-	int 			get_port(int i);
-	ServerSocket 	&getSocket(int i);
-	ServerBlock		*get_server_info();
-	BlockParams		*find_location(std::string target);
-	std::string		obtain_final_target(BlockParams *_location, std::string _target);
-	bool			is_valid_target(std::string& _target, BlockParams *_location);
-	bool			is_valid_method(std::string method, BlockParams *location);
-	bool			no_error();
+	void handle_request(ClientSocket* client, Request* request);
 
-	void 			process_post(AnswerHeader* header_list, std::string& body, std::string target);
-	bool			post_check_file_already_exist(std::string target);
-	void 			process_get(AnswerHeader* header_list, std::string& body, std::string target, int directory_listing, std::string root);
-	void			process_delete(AnswerHeader* header_list, std::string& body, std::string target);
-	bool			delete_check_if_file_exist(std::string target);
-	std::string display_directory_listing(std::string target, std::string root);
+private:
+	
+	bool	search_index(Request* request);
+	void	check_target(Request* request);
+	bool	is_allowed_method(Request* request);
+	void	check_method(Request* request);
+	void	check_http(Request& request);
+	void	check_version(Request *request);
+	void	send_response(Request *request, ClientSocket *client);
 
-	public:
-	bool file_exists(std::string target);
-	bool	search_index(std::string& target, BlockParams *_location);
-	bool isDir(std::string target);
-	std::string error_page();
-	void reset_status_code();
-	std::vector<LocationBlock>& get_location_list();
-	ServerSocket& operator[](int index);
+public:
+void	verify_request(Request &request);
+	void set_status_code(int number);
+public:
+	ServerSocket &operator[](int index);
 	size_t size();
-	private:
-	std::string obtain_body_content(std::string target);
 };
-
-std::string NumberToString(size_t nb);
 
 #endif

@@ -1,5 +1,4 @@
 #include "Server.hpp"
-#include <dirent.h>
 
 Server::Server(std::vector<KeyWord> tokens)
 	: _status_code(0)
@@ -8,11 +7,15 @@ Server::Server(std::vector<KeyWord> tokens)
 	init_server_sockets();
 }
 
+// Fill the settings of the server
 void Server::serverConfiguration(std::vector<KeyWord> tokens)
 {
-	Config configuration(_info, _locationsList, tokens);
+	Config config(_info, _locationsList);
+	config.server_configuration(tokens);
+
 }
 
+// Create the sockets of the server
 void Server::init_server_sockets()
 {
 	for (size_t i = 0; i < _info.port.size(); i++)
@@ -22,332 +25,140 @@ void Server::init_server_sockets()
 	}
 }
 
-
-int Server::get_port(int i)
+// After receiving a new request the server analyze the content
+// of the request and return a fitting answer to the client.
+void  Server::handle_request(ClientSocket* client, Request* request)
 {
-	return (_info.port[i]);
+	verify_request(*request);
+	send_response(request, client);
 }
 
-ServerBlock *Server::get_server_info()
+void	Server::verify_request(Request& request)
 {
-	return (&_info);
+	check_http(request);
+	check_version(&request);
+	check_method(&request);
+	if (request.method == "GET")
+		check_target(&request);
+	
 }
 
-std::vector<LocationBlock>& Server::get_location_list()
+void	Server::check_http(Request& request)
 {
-	return (_locationsList);
+	if (request.method.empty() || request.target.empty() || request.version.empty())
+		set_status_code(400);
 }
 
-size_t Server::size()
+
+void	Server::check_version(Request *request)
 {
-	return (_server_sockets.size());
+	if (request->version == "HTTP/1.1" && request->host.empty() == true)
+		set_status_code(400);
+	else if (request->version == "HTTP/0.9" || request->version == "HTTP/2" || request->version == "HTTP/3")
+		set_status_code(505);
 }
 
-ServerSocket& Server::operator[](int index)
+void	Server::check_method(Request* request)
 {
-	return (_server_sockets[index]);
-}
-
-Server::~Server()
-{
-	std::cout << "server destructor called" << std::endl;
-	return;
-}
-
-BlockParams *Server::find_location(std::string target)
-{
-	std::vector<LocationBlock>::iterator it;
-	std::string target_request;
-	std::string location_path;
-
-	for (it = _locationsList.begin(); it != _locationsList.end(); it++)
+	std::string method = request->method;
+	if (!( method == "GET" || method == "POST" || method == "DELETE"))
 	{
-		if (it->root.empty() == true)
-			location_path = target_request = _info.root;
+		if ( method == "HEAD" || method == "PUT" || method == "CONNECT"
+			|| method == "OPTIONS" || method == "TRACE" || method == "PATCH")
+				set_status_code(501);
 		else
-			location_path = target_request = it->root;
-		location_path += it->path;
-		target_request += target;
-		std::cerr << target_request << " " <<  location_path << std::endl;
-		if (std::strncmp(target_request.c_str(),  location_path.c_str(), location_path.size()) == 0)
-			return &(*it);
+			set_status_code(400);
 	}
-	return (&_info);
+	if (is_allowed_method(request) == false)
+		set_status_code(405);
+	
 }
 
-std::string Server::obtain_final_target(BlockParams *location, std::string target)
+bool	Server::is_allowed_method(Request* request)
 {
-	std::string final_target;
+	std::vector<std::string>::iterator	it;
+	std::vector<std::string>*			allowed_methods;
 
-	if (location->root.empty() == false)
-		final_target = location->root;
-	else
-		final_target = _info.root;
-	final_target += target;
-	std::cerr << "final target: " <<  final_target << std::endl;
-	return (final_target);
-}
-
-bool	Server::is_valid_target(std::string& target, BlockParams* location)
-{
-
-	std::cerr << "valid target: " << target << std::endl;
-	if (isDir(target) == true)
+	allowed_methods = &request->location->allowed_methods;
+	for (it = allowed_methods->begin(); it != allowed_methods->end(); it++)
 	{
-		if ((location->autoindex == NONE && _info.autoindex == ON) || location->autoindex == ON)
+		if (*it == request->method)
 			return (true);
-		else if (search_index(target, location) == false)
-		{
-			set_status_code(503);
-			return (false);
-		}
-
 	}
-	return (file_exists(target));
+	return (false);
+	
 }
 
-bool	Server::file_exists(std::string target)
+void	Server::check_target(Request* request)
 {
-	std::ifstream	file;
-
-	file.open(target.c_str());
-	if (!file.is_open()) {
-		return (false);
+	if (isDir(request->target) == true)
+	{
+		if (request->location->autoindex != ON && search_index(request) == false)
+		{
+			std::cerr << "yes" << std::endl;
+			set_status_code(403);
+		}
 	}
-	file.close();
-	return (true);
+	if (file_exists(request->target) == false)
+		set_status_code(404);
+
 }
 
-
-bool	Server::search_index(std::string& target, BlockParams* location)
+bool	Server::search_index(Request* request)
 {
 	std::vector<std::string> *index_names;
 	std::vector<std::string>::iterator it;
 	std::string copy_target;
 
-	copy_target = target;
-	if (location->index.empty() == false)
-		index_names = &location->index;
+	copy_target = request->target;
+	if (request->location->index.empty() == false)
+		index_names = &request->location->index;
 	else
 		index_names = &_info.index;
 	for (it = index_names->begin(); it != index_names->end(); it++)
 	{
 		if (file_exists(copy_target + *it) == true)
 		{
-			target += *it;
+			request->target += *it;
 			return (true);
 		}
 	}
 	return (false);
-
 }
 
-
-bool Server::isDir(std::string target)
+void			Server::send_response(Request* request, ClientSocket* client)
 {
-	std::fstream fileOrDir(target.c_str());
+	Response		response;
+	ResponseMaker	responseMaker(&response, request, &_status_code);
 
-	if (fileOrDir.is_open() == false)
-	{
-		return (true);
-	}
-	fileOrDir.close();
-	return (false);
+	responseMaker.make_response();
+	client->send(response.make_response());
 }
 
-void	Server::process_get(AnswerHeader* header, std::string& body, std::string target, int directory_listing, std::string root)
-{
-	if (directory_listing == NONE && _info.autoindex != NONE)
-		directory_listing = _info.autoindex;
-	if (directory_listing == ON && isDir(target) == true)
-		body = display_directory_listing(target, root);
-	else
-		body = obtain_body_content(target);
-	header->add_header("Content-Length: " + NumberToString(body.size()));
-	set_status_code(200);
+size_t Server::size() {
+	return (_server_sockets.size());
 }
 
-std::string Server::display_directory_listing(std::string target, std::string root)
-{
-	DIR* directory;
-	struct dirent *entry;
-	std::string result;
-
-	if (root.empty() == true)
-		root = _info.root;
-
-	result.append("<!DOCTYPE html>\n");
-	result.append("<html lang=\"en\">\n");
-	result.append("<head>\n");
-	result.append("</head>\n");
-	result.append("<body>\n");
-	result.append("\t<h1>Index of " + target + " </h1>\n");
-
-	directory = opendir(target.c_str());
-	if (!directory)
-		return "";
-	std::vector<struct dirent> entries;
-	while ((entry = readdir(directory)) != NULL)
-	{
-		entries.push_back(*entry);
-	}
-
-	for (std::vector<struct dirent>::iterator it = entries.begin(); it != entries.end(); it++)
-	{
-		std::string name(it->d_name);
-		std::string line = "<a href=\"";
-		line += target.substr(root.size());
-		if (line[line.size() - 1] != '/')
-			line += '/';
-		line += it->d_name;
-		line += "\">";
-		line += it->d_name;
-		line += "</a></br>\n";
-		result += line;
-	}
-	result += "</body>\r\n";
-	closedir(directory);
-	return (result);
+ServerSocket& Server::operator[](int index) {
+	return (_server_sockets[index]);
 }
 
-
-void	Server::process_post(AnswerHeader* header, std::string& body, std::string target)
-{
-	if (post_check_file_already_exist(target) == true)
-	{
-		header->add_header("Content-Length: " + NumberToString(0));
-		return ;
-	}
-
-	std::ofstream newFile;
-
-	newFile.open (target.c_str(), std::ofstream::out); // for cgi appending: ofs.open ("test.txt", std::ofstream::out | std::ofstream::app);
-	newFile << body;
-	newFile.close();
-	set_status_code(201);
-	body.clear();
-	header->add_header("Content-Length: " +  NumberToString(body.size()));
-	header->add_header("Location: " + target);
-}
-
-bool Server::post_check_file_already_exist(std::string target)
-{
-	std::ifstream testFile;
-
-	testFile.open(target.c_str());
-	if (testFile.is_open())
-	{
-		testFile.close();
-		set_status_code(203);
-		return (true);
-	}
-	return (false);
-}
-
-bool Server::delete_check_if_file_exist(std::string target)
-{
-	std::ifstream testFile;
-
-	testFile.open(target.c_str());
-	if (!testFile.is_open())
-	{
-		set_status_code(204);
-		return (false);
-	}
-	testFile.close();
-	return (true);
-}
-
-
-
-void	Server::process_delete(AnswerHeader* header, std::string& body, std::string target)
-{
-	if (delete_check_if_file_exist(target) != false) // 204 No content
-	{
-		if (std::remove(target.c_str())) // 200 OK
-		{
-			set_status_code(200);
-			body = "<html>\n  <body>\n    <h1>File deleted.</h1>\n  </body>\n</html>";
-		}
-		else
-			set_status_code(202); // 202 Accepted
-	}
-	header->add_header("Content-Length: " + NumberToString(body.size()));
-}
-
-
-std::string Server::obtain_body_content(std::string target)
-{
-	std::ifstream	file;
-	std::string		file_content, line;
-
-	file.open(target.c_str());
-	while (std::getline(file, line)){
-		file_content += line + "\n";
-	}
-	file.close();
-	return (file_content);
-}
-
-bool Server::is_valid_method(std::string method, BlockParams* location)
-{
-	std::vector<std::string>::iterator first;
-	std::vector<std::string>::iterator last;
-
-	if (location->allowed_methods.empty() == true && _info.allowed_methods.empty() == true)
-	{
-		return (true);
-	}
-	if (location->allowed_methods.empty() == false)
-	{
-		first = location->allowed_methods.begin();
-		last = location->allowed_methods.end();
-	}
-	else
-	{
-		first = _info.allowed_methods.begin();
-		last = _info.allowed_methods.end();	
-	}
-	for (; first != last; first++)
-	{
-		if (*first == method)
-			return (true);
-	}
-	return (false);
-}
-
-void Server::set_status_code(int number)
-{
-	if (_status_code == 0)
+void Server::set_status_code(int number) {
+	if (_status_code == 0 || number == 0)
 		_status_code = number;
 }
-int Server::get_status_code()const
+
+
+Server::~Server()
 {
-	return (_status_code);
+	ServerSocket *to_delete;
+
+	while (_server_sockets.empty() == false)
+	{
+		to_delete = &(_server_sockets.back());
+		_server_sockets.pop_back();
+		delete to_delete;
+	}
 }
 
-bool Server::no_error()
-{
-	return (_status_code == 0);
-}
 
-void Server::reset_status_code()
-{
-	_status_code = 0;
-}
-
-std::string Server::error_page()
-{
-	std::string content;
-
-	if (_info.error_pages.find(_status_code) == _info.error_pages.end())
-		return (content);
-	return (obtain_body_content(_info.error_pages[_status_code]));
-}
-
-std::string NumberToString ( size_t Number )
-{
-	std::ostringstream ss;
-	ss << Number;
-	return ss.str();
-}

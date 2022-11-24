@@ -1,5 +1,5 @@
 <request> = <method> <request-target> <http_version>
-<method> = ( "GET" | "POST" | "DELETE" )
+<method> = ( "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "CONNECT" | "OPTIONS" | "TRACE" )
 <request-target> = ( <origin-form> | <absolute-form> )
 <origin-form> = <absolute-path>
 <absolute-form> = <absolute-URI>

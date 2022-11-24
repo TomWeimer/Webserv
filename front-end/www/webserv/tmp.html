@@ -1,0 +1,50 @@
+
+<style>
+			
+	.pagination {
+	  display: inline-block;
+	  float: right;
+	}
+	
+	.pagination a {
+	  color: black;
+	  float: left;
+	  padding: 8px 16px;
+	  text-decoration: none;
+	  transition: background-color .3s;
+	  border: 1px solid #ddd;
+	}
+	
+	.pagination a.active {
+	  background-color: #4CAF50;
+	  color: white;
+	  border: 1px solid #4CAF50;
+	}
+	.pagination a:hover:not(.active) {background-color: #ddd;}
+	.pagination a:first-child
+	{
+		  border-top-left-radius: 5px;
+		  border-bottom-left-radius: 5px;
+	}
+
+	.pagination a:last-child
+	{
+		border-top-right-radius: 5px;
+		border-bottom-right-radius: 5px;
+	}
+	.button {
+		type: button;
+
+	}
+	</style>
+
+<div class="pagination">
+	<a class="active">home</a>
+	<a href="home.html" class="post" id="get_link">
+		<button type="button" id="mybtn" onclick="go_to()">GET</button>
+	</a>
+	<a>
+		<button type="button" id="mybtn" onclick="post()">POST</button>
+	</a>
+	<a href="index.html" class="delete">delete</a>
+  </div>

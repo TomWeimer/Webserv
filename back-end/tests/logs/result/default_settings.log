@@ -1,9 +1,0 @@
-Server content:
-	name: 
-	port: 80, host: 0.0.0.0, socket: 0.0.0.0:80
-	root: 
-	allowed_methods: GET, POST, DELETE
-	index: 
-
-	error_pages: 
-	body limit: 0
