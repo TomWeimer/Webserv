@@ -12,6 +12,7 @@
 <port> = <number>
 <location> = "location" <location_modifier> <string> "{"
 <return> = "return" <number> <string>
+<cgi> = "cgi_info" <string> <string>
 <rewrite> = "rewrite" <string>
 
 <cgi> = "cgi_info" <extension> <string>
