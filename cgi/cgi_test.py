@@ -36,7 +36,7 @@ print("result: ", result)
 
 html_file = open("front-end/www/webserv/calculator.html", "r")
 list_of_lines = html_file.readlines()
-list_of_lines[31] = "<p class=result>Result: " + str(result) + "</p>"
+list_of_lines[31] = "<p class=result>Result: " + str(result) + "</p>\n"
 
 html_file = open("front-end/www/webserv/calculator.html", "w")
 html_file.writelines(list_of_lines)
