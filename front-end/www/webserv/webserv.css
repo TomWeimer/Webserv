@@ -85,6 +85,14 @@ button:hover {
 	right: 18%;
 	top: 30%;
 }
+
+#bottom{
+	position: absolute;
+	right: 44%;
+	bottom: 10%;
+	text-align: center;
+}
+
 #valid {
 	font-size: 25px;
 	position: absolute;

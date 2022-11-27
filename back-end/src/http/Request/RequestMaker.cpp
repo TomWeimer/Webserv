@@ -38,7 +38,7 @@ void RequestMaker::assign_content(std::string request)
 	size_t pos;
 
 	pos = request.find("\r\n\r\n");
-	std::cerr << "request: " << request << std::endl;
+	// std::cerr << "request: " << request << std::endl;
 	_request->line = request.substr(0, pos);
 	_request->body = request.substr(pos + 3);
 }
@@ -73,14 +73,41 @@ void RequestMaker::assign_request_line(KeyWord &keyword)
 	assign_target(keyword);
 	assign_method(keyword);
 	assign_version(keyword);
-	std::cerr << "request: " << _request->method << " " << _request->target << " " << _request->version << std::endl;
+	assign_file_extention();
+	// std::cerr << "request: " << _request->method << " " << _request->target << " " << _request->version << std::endl;
 }
 
 // subtoken: <target>
 void RequestMaker::assign_target(KeyWord &keyword) {
 	_request->target = keyword.args[1].valueToken;
+	size_t pos_query = _request->target.find_first_of("?");
+	if (pos_query != std::string::npos)
+	{
+		_request->query = _request->target.substr(pos_query + 1);
+		_request->target = _request->target.substr(0, pos_query);
+	}
+	else
+		_request->query = "";
 	if (_request->target.size() > MAX_URL_LENGTH)
 		_server->set_status_code(414);
+}
+
+// assign file extention based on the target
+void RequestMaker::assign_file_extention()
+{
+	size_t pos;
+	// size_t pos_query;
+
+	pos = _request->target.find_last_of(".");
+	if (pos != std::string::npos)
+		_request->file_extension = _request->target.substr(pos + 1);
+
+	if (_request->query.size() > 0 )
+	{
+		std::cerr << "it's a cgi: " ;
+		std::cerr << _request->query << std::endl;
+	}
+	std::cerr << "file extension: " << _request->file_extension << std::endl;
 }
 
 // subtoken: <method>
@@ -109,7 +136,7 @@ void RequestMaker::expand_request()
 	if (_request->location->redirection.type != UNINITIALIZED)
 		_request->target = expand_redirection();
 	_request->target = expand_target();
-	std::cerr << "request: " << _request->method << " " << _request->target << " " << _request->version << std::endl;
+	// std::cerr << "request: " << _request->method << " " << _request->target << " " << _request->version << std::endl;
 }
 
 BlockParams *RequestMaker::find_location(std::string target)

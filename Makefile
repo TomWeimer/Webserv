@@ -15,6 +15,7 @@ INCLUDE	:= $(INC)
 SRC	:=	Server/Server.cpp\
 		DirectoryListing/DirectoryListing.cpp\
 		http/Method/Method.cpp\
+		http/Method/Cgi.cpp\
 		Manager/ConnectionManager.cpp\
 		Manager/Register.cpp\
 		Manager/SocketSet.cpp\

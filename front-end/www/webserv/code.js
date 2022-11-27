@@ -168,3 +168,26 @@ function delet(arg1)
 	xhr.send(null);
 	}
 }
+
+function requestCalculator(){
+	var inputX = document.getElementById("inputX").value;
+	var inputY = document.getElementById("inputY").value;
+	const inputOperator = document.getElementById("operator").value;
+
+	console.log(inputX, inputY, inputOperator);
+
+	const target = "http://localhost:4242/calculator.html?x=" + inputX + "&y=" + inputY + "&operator=" + inputOperator;
+	
+	const xhr = new XMLHttpRequest();
+	xhr.open("GET", target);
+	xhr.send(null);
+	xhr.onreadystatechange = function() {
+		if(xhr.readyState==4) {
+			console.log(`request: GET ${target} HTTP/1.1`);
+			console.log(`response:  HTTP/1.1 ${xhr.status} ${xhr.statusText}\n ${xhr.responseText} ${xhr.getAllResponseHeaders()}`);
+		}
+	}
+	window.location = "http://localhost:4242/calculator.html";
+
+
+}

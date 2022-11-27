@@ -10,6 +10,8 @@ public:
 	std::string				method;
 	std::string				target;
 	std::string				version;
+	std::string				file_extension;
+	std::string				query;
 	std::string				host;
 	std::string				body;
 	BlockParams*			location;

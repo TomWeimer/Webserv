@@ -15,7 +15,8 @@ void ResponseMaker::make_response()
 		_response->body = redirection_or_error_page();
 	_response->status = _status_message[status_code()];
 	_response->version = _request->version;
-	std::cerr << "response: " << _response->make_response() << std::endl;
+	// std::cerr << "response: " << _response->make_response() << std::endl;
+	_response->make_response();
 }
 
 std::string ResponseMaker::method()

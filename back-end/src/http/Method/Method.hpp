@@ -2,6 +2,7 @@
 #define METHOD_HPP
 #include <iostream>
 #include "../Request/Request.hpp"
+#include "Cgi.hpp"
 #include "../Response/Response.hpp"
 
 

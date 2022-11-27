@@ -7,6 +7,13 @@ Method::Method(Request* request, Response* response,int* status_code)
 
 void Method::get()
 {
+	if (_request->query.size() > 0)
+	{
+		std::cout << "cgi allowed: " <<  _request->location->cgi.cgi_name << std::endl;
+		Cgi cgi("/cgi/cgi_test.py", _request->query);
+		cgi.execute_python_cgi();
+		return ;
+	}
 	_response->body.clear();
 	if (need_directory_listing() == true)
 	{
@@ -27,7 +34,7 @@ bool Method::need_directory_listing()
 
 void Method::post()
 {
-	std::cerr << "body: " << _request->body  << std::endl;
+	// std::cerr << "body: " << _request->body  << std::endl;
 	_response->body.clear();
 	if (file_exists(_request->target) == true)
 		set_status_code(203);
