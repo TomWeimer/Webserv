@@ -54,8 +54,6 @@ class ConnectionManager
 		void		add_entry(int sockfd, Socket* socket);
 		void		add_entry(int sockfd, Server* server);
 		std::map<int, Socket*>& get_socket_list();
-		std::map<int, Socket*>::iterator begin();
-		std::map<int,Socket*>::iterator end();
 		
 	};
 // -----------------------------------------------------------------------------------------
