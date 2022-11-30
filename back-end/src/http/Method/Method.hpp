@@ -15,6 +15,7 @@ private:
 private:
 	void add_header(std::string header, std::string value);
 	bool need_directory_listing();
+	void handle_chunked_request();
 	void set_status_code(int nb);
 
 public:

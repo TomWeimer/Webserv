@@ -42,6 +42,7 @@ private:
 	void	check_method(Request* request);
 	void	check_http(Request& request);
 	void	check_version(Request *request);
+	void	check_limit(Request* request);
 	void	send_response(Request *request, ClientSocket *client);
 
 public:

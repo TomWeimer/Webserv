@@ -15,12 +15,16 @@ ClientSocket& ClientSocket::operator=(const ClientSocket& other)
 	return (*this);
 }
 
-std::string	ClientSocket::recv(int buffer_size)
+std::string	ClientSocket::recv(int buffer_size, bool &_limit_reached)
 {
 	std::string 		str;
+	int					ret;
 	char	buffer[buffer_size];
 
-	::recv(_fd, buffer, buffer_size, 0);
+	ret = ::recv(_fd, buffer, buffer_size, 0);
+	if (ret == buffer_size){
+		_limit_reached = true;
+	}
 	str = buffer;
 	return (str);
 }

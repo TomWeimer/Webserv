@@ -38,6 +38,7 @@ void	Server::verify_request(Request& request)
 	check_http(request);
 	check_version(&request);
 	check_method(&request);
+	check_limit(&request);
 	if (request.method == "GET")
 		check_target(&request);
 	
@@ -71,7 +72,12 @@ void	Server::check_method(Request* request)
 	}
 	if (is_allowed_method(request) == false)
 		set_status_code(405);
-	
+}
+
+void	Server::check_limit(Request* request)
+{
+	if (request->size_limit_reached == true)
+		set_status_code(413);
 }
 
 bool	Server::is_allowed_method(Request* request)

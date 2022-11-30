@@ -42,7 +42,7 @@ struct BlockParams
 
 
 	BlockParams()
-		:	autoindex(OFF), body_limit(1000), root(""), index(),
+		:	autoindex(OFF), body_limit(10000), root(""), index(),
 			error_pages(), allowed_methods(), cgi()
 		{
 			redirection.type = UNINITIALIZED;

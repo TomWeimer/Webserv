@@ -34,6 +34,7 @@ private:
 	void		assign_method(KeyWord &keyword);
 	void		assign_version(KeyWord &keyword);
 	void		assign_host(KeyWord &keyword);
+	void		assign_chunked(KeyWord &keyword);
 	void		assign_file_extention();
 	BlockParams	*find_location(std::string target);
 	void		expand_request();

@@ -14,6 +14,8 @@ public:
 	std::string				query;
 	std::string				host;
 	std::string				body;
+	bool					size_limit_reached;	
+	bool					chunked;
 	BlockParams*			location;
 	int						redirected;
 };

@@ -14,11 +14,19 @@ void RequestHandler::insert_headers()
 	_assign.insert(std::make_pair("<Host>", &RequestHandler::host));
 }
 
-void RequestHandler::analyze_request(std::string request)
+void RequestHandler::analyze_request(std::string request, bool limit_reached)
+{
+	assign_content(request);
+	tokens_t tokens = parse_request();
+	assign_header(tokens);
+	expand_request();
+	verify_request();
+}
 {
 	std::vector<KeyWord> tokens;
 
 	assign_content(request);
+	_request.limit_reached = limit_reached;
 	tokens = parse_request();
 	assign_header(tokens);
 	// std::cerr << "CGI: " << _request->_location->cgi.cgi_extension << std::endl;

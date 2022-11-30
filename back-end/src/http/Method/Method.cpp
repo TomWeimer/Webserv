@@ -38,6 +38,10 @@ void Method::post()
 	_response->body.clear();
 	if (file_exists(_request->target) == true)
 		set_status_code(203);
+	else if(_request->chunked == true){
+		handle_chunked_request();
+		return ;
+	}
 	else
 	{
 		std::ofstream newFile;
@@ -76,4 +80,37 @@ void Method::set_status_code(int nb)
 {
 	if ((*_status_code) == 0)
 		*_status_code = nb;
+}
+
+std::string int_to_str(int nb)
+{
+	std::stringstream ss;
+	ss << nb;
+	return ss.str();
+}
+
+void Method::handle_chunked_request(){
+	std::ofstream newFile;
+	int	size = 0;	
+
+	std::string body = _request->body;
+
+	std::cout << "ici" << std::endl;
+	while (body.find("\r\n")){
+		std::string size = body.substr(0, body.find("\r\n"));
+		int size_int = std::stoi(size, nullptr, 16);
+		size += size_int;
+		if (size_int == 0)
+			break;
+		body = body.substr(body.find("\r\n") + 2);
+		std::string chunk = body.substr(0, size_int);
+		body = body.substr(size_int + 2);
+		newFile.open(_request->target.c_str(), std::ofstream::out | std::ofstream::app);
+		newFile << chunk;
+		newFile.close();
+	}
+
+	add_header("Location:", _request->target);
+	add_header("Content-Length:", int_to_str(size));
+	set_status_code(201);
 }

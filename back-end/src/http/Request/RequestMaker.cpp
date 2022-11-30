@@ -20,6 +20,7 @@ void RequestMaker::set_headers_token()
 {
 	_assign.insert(std::make_pair("<request>", &RequestMaker::assign_request_line));
 	_assign.insert(std::make_pair("<Host>", &RequestMaker::assign_host));
+	_assign.insert(std::make_pair("<chunked_request>", &RequestMaker::assign_chunked));
 }
 
 void RequestMaker::make_request(std::string request)
@@ -40,7 +41,7 @@ void RequestMaker::assign_content(std::string request)
 	pos = request.find("\r\n\r\n");
 	// std::cerr << "request: " << request << std::endl;
 	_request->line = request.substr(0, pos);
-	_request->body = request.substr(pos + 3);
+	_request->body = request.substr(pos + 4); // shouldn't be + 4?
 }
 
 // parse the request into tokens
@@ -48,6 +49,8 @@ std::vector<KeyWord> RequestMaker::parse_request()
 {
 	Lexer	lexer(Vocabulary("./back-end/.tools/HTTP.ebnf"));
 
+	std::cout << "line: " << _request->line << std::endl << std::endl;
+	std::cout << "body: " << _request->body << std::endl << std::endl;
 	lexer.set_input(_request->line);
 	return (lexer.lexeme());
 }
@@ -104,10 +107,10 @@ void RequestMaker::assign_file_extention()
 
 	if (_request->query.size() > 0 )
 	{
-		std::cerr << "it's a cgi: " ;
+		// std::cerr << "it's a cgi: " ;
 		std::cerr << _request->query << std::endl;
 	}
-	std::cerr << "file extension: " << _request->file_extension << std::endl;
+	// std::cerr << "file extension: " << _request->file_extension << std::endl;
 }
 
 // subtoken: <method>
@@ -127,6 +130,15 @@ void RequestMaker::assign_host(KeyWord &keyword) {
 		_server->set_status_code(431);
 	_request->host = keyword.args[0].valueToken;
 }
+
+// token: <chunked-request>
+// role: inform the server that the request is chunked
+void RequestMaker::assign_chunked(KeyWord &keyword) {
+	if (keyword.args[0].valueToken == "chunked")
+		_request->chunked = true;
+	// std::cout << "is chunked: " << _request->chunked << std::endl;
+}
+
 
 // Assign the corresponding locationBlock to the request and
 //	then expand the request's informations with the ones of the locationBlock

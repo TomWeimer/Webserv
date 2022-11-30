@@ -58,7 +58,8 @@ void  ConnectionManager::obtain_sockets_used_by_clients()
 	if (timeout < 0)
 		exit(1);
 	if (timeout == 0)
-		std::cerr << "[ERROR] select() timeout\n" << std::endl; // removing clients
+		remove_all_client();
+		// std::cerr << "[ERROR] select() timeout\n" << std::endl; // removing clients
 }
 
 void ConnectionManager::remove_all_client(){
@@ -122,6 +123,7 @@ void ConnectionManager::new_request(int socketFd)
 	ClientSocket	*client;
 	Server			*server;
 	Request			request;
+	bool			_limit_reached;
 
 
 	
@@ -129,7 +131,9 @@ void ConnectionManager::new_request(int socketFd)
 	int	buffer_size = server->get_server_info()->body_limit;
 	client = dynamic_cast<ClientSocket *>(_register[socketFd]);
 	RequestMaker	requestMaker(server, &request);
-	requestMaker.make_request(client->recv(buffer_size));
+	requestMaker.make_request(client->recv(buffer_size, _limit_reached));
+	request.size_limit_reached = _limit_reached;
+	// std::cout << "limit reached: " << request.size_limit_reached << std::endl;
 	server->handle_request(client, &request);
 	close_connection(client, server);
 }

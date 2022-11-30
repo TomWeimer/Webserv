@@ -4,7 +4,7 @@
 
 class IClientSocket
 {
-	virtual std::string	recv(int buffer_size)				= 0;
+	virtual std::string	recv(int buffer_size, bool &_limit_reached)				= 0;
 	virtual void		send(std::string response_message)	= 0;
 	virtual void		close()                				= 0;
 	public:
@@ -14,7 +14,7 @@ class IClientSocket
 class ClientSocket : public IClientSocket, public Socket
 {
 	public:
-	std::string	recv(int buffer_size);
+	std::string	recv(int buffer_size, bool &_limit_reached);
 	void		send(std::string response_message);
 	void		close();
 

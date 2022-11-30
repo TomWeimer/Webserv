@@ -18,6 +18,8 @@ public:
 	BlockParams*				_location;
 	int							_redirected;
 	bool						_is_cgi;
+	bool						_is_chunked;
+	bool						_size_limit_reached;
 };
 
 class RequestHandler
@@ -37,7 +39,7 @@ public:
 	~RequestHandler();
 
 public:
-	void analyze_request(std::string request);
+	void analyze_request(std::string request, bool limit_reached);
 
 private:
 	void		insert_headers();

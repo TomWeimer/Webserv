@@ -115,7 +115,6 @@ void ManageConnection::handle_new_request(int socketFd)
 	_all_sockets.remove_socket(socket->sockfd());
 	socket->close();
 	_max_socket = _register.max();
-	
 }
 
 void ManageConnection::receive_request(ClientSocket *socket, Server *server)
@@ -123,7 +122,7 @@ void ManageConnection::receive_request(ClientSocket *socket, Server *server)
 	int		buffer_size;
 	//(void)server;
 
-	buffer_size = 1000;
+	buffer_size = server->_info.body_limit;
 	Request new_request;
 	RequestHandler request_filler(server, &new_request);
 	request_filler.analyze_request(socket->recv(buffer_size));
