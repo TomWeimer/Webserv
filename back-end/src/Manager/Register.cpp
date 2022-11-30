@@ -35,4 +35,12 @@ Socket*	ConnectionManager::Register::operator[](int sockfd)
 	return (_sockets[sockfd]);
 }
 
+std::map<int, Socket *>	ConnectionManager::Register::getSocket(){
+	return _sockets;
+}
+
+void	ConnectionManager::Register::setSocket(std::map<int, Socket *> & other){
+	_sockets = other;
+}
+
 ConnectionManager::Register::~Register() {}

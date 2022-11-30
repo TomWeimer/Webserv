@@ -49,8 +49,14 @@ class ConnectionManager
 		Server*		find_server(int sockfd);
 		Socket*		operator[](int sockfd);
 		void		erase_entry(int sockfd);
+		void					setSocket(std::map<int, Socket *> &other);
+		std::map<int, Socket *>	getSocket();
 		void		add_entry(int sockfd, Socket* socket);
 		void		add_entry(int sockfd, Server* server);
+		std::map<int, Socket*>& get_socket_list();
+		std::map<int, Socket*>::iterator begin();
+		std::map<int,Socket*>::iterator end();
+		
 	};
 // -----------------------------------------------------------------------------------------
 private:
@@ -78,6 +84,7 @@ public:
 
 private:
 	void 			obtain_sockets_used_by_clients();
+	void			remove_all_client();
 	void			handle_new_connection_or_request();
 	void			new_connection(int fd);
 	ClientSocket*	new_client(int fd);

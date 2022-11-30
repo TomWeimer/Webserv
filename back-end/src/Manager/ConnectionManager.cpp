@@ -61,6 +61,21 @@ void  ConnectionManager::obtain_sockets_used_by_clients()
 		std::cerr << "[ERROR] select() timeout\n" << std::endl; // removing clients
 }
 
+void ConnectionManager::remove_all_client(){
+	std::map<int, Socket *>::iterator it;
+	std::map<int, Socket *> copy = _register.getSocket(); //could result in segfault otherwise
+
+	for (it = copy.begin(); it != copy.end(); it++){
+		if (!it->second->is_listening_port()) //client socket
+		{
+			close(it->first);
+			_all_sockets.remove_socket(it->first);
+			_register.erase_entry(it->first);
+		}
+	}
+	_register.setSocket(copy);
+}
+
 //	find all the sockets present in the set
 //		- if they are listening sockets that mean that a new client connected, so we need to create a new connection
 //		- else they sent an http request
