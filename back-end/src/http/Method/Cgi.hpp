@@ -4,6 +4,9 @@
 #include "unistd.h"
 #include "Method.hpp"
 
+#define PYTHON 1
+#define PHP 2
+
 class Cgi
 {
 	private:
@@ -21,7 +24,11 @@ class Cgi
 		// void		check_cgi_validity();
 		// void        set_cgi_env();
 		void 	    split_cgi_answer(std::string &answer);
-		// void		set_path();
+		void		send_to_cgi(int pip_to_cgi[2], int pip_from_cgi[2]);
+		void		recv_from_cgi(int pip_to_cgi[2], int pip_from_cgi[2], int pid);
+		char 		**make_argv(int cgi_type); // DEFINE 1 = "python" 2 = "PHP"
+		char		**make_env(int cgi_type); // DEFINE 1 = "python" 2 = "PHP"
+		void		set_path();
 		std::string read_answer(int fd);
 
 	public:

@@ -49,8 +49,8 @@ std::vector<KeyWord> RequestMaker::parse_request()
 {
 	Lexer	lexer(Vocabulary("./back-end/.tools/HTTP.ebnf"));
 
-	std::cout << "line: " << _request->line << std::endl << std::endl;
-	std::cout << "body: " << _request->body << std::endl << std::endl;
+	// std::cout << "line: " << _request->line << std::endl << std::endl;
+	// std::cout << "body: " << _request->body << std::endl << std::endl;
 	lexer.set_input(_request->line);
 	return (lexer.lexeme());
 }
