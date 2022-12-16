@@ -15,17 +15,19 @@ ClientSocket& ClientSocket::operator=(const ClientSocket& other)
 	return (*this);
 }
 
-std::string	ClientSocket::recv(int buffer_size, bool &_limit_reached)
+std::string	ClientSocket::recv(int body_size, bool &_limit_reached)
 {
 	std::string 		str;
-	int					ret;
-	char	buffer[buffer_size];
+	char	buffer[65536];
 
-	ret = ::recv(_fd, buffer, buffer_size, 0);
-	if (ret == buffer_size){
-		_limit_reached = true;
-	}
+	::recv(_fd, buffer, 65536, 0);
 	str = buffer;
+	if (str.substr(str.find("\r\n\r\n") + 4).length() >= static_cast<size_t>(body_size)) {
+		_limit_reached = true;
+		// std::cerr << "enter\n";
+	}
+	// std::cout << str << std::endl;
+	
 	return (str);
 }
 

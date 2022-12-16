@@ -38,6 +38,7 @@ void ConnectionManager::start_one_server(Server& actual_server)
 	}
 }
 
+// main loop
 // Redirect the clients to the right server and permit the connection to be non-blocking
 void	ConnectionManager::manage_connections()
 {
@@ -103,7 +104,8 @@ void ConnectionManager::new_connection(int socketFd)
 
 	server = _register.find_server(socketFd);
 	client = new_client(socketFd);
-	add_socket(server, client, _all_sockets);
+	if (client != NULL)
+		add_socket(server, client, _all_sockets);
 }
 
 // To create a clientSocket, a listening socket need to accept the incomming communication.
@@ -111,10 +113,17 @@ ClientSocket *ConnectionManager::new_client(int socketFd)
 {
 	ServerSocket	*listeningSocket;
 	int				clientFd;
+	ClientSocket* client;
 
 	listeningSocket = dynamic_cast<ServerSocket *>(_register[socketFd]);
-	clientFd = listeningSocket->accept();
-	ClientSocket* client = new ClientSocket(clientFd);
+	try {
+		clientFd = listeningSocket->accept();
+		client = new ClientSocket(clientFd);
+	}
+	catch (std::exception& e) {
+		client = NULL;
+	}
+	
 	return (client);
 }
 

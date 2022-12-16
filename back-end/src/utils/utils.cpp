@@ -55,3 +55,11 @@ int StrToInt(std::string str)
 	result = std::strtol(str.c_str(), NULL, 10);
 	return (static_cast<int>(result));
 }
+
+int StrToHex(std::string str)
+{
+	long result;
+
+	result = std::strtol(str.c_str(), NULL, 16);
+	return (static_cast<int>(result));
+}

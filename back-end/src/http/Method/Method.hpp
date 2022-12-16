@@ -3,6 +3,7 @@
 #include <iostream>
 #include "../Request/Request.hpp"
 #include "Cgi.hpp"
+#include "../../utils/utils.hpp"
 #include "../Response/Response.hpp"
 
 

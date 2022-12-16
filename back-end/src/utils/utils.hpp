@@ -10,5 +10,6 @@ bool	isDir(std::string target);
 std::string obtain_body_content(std::string target);
 std::string NumberToString ( size_t Number );
 int StrToInt(std::string str);
+int StrToHex(std::string str);
 
 #endif

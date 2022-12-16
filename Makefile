@@ -103,10 +103,10 @@ RESET	:= \033[0m
 ##------------------------------------------------------------------------------##
 ##								COMPILATION										##
 ##------------------------------------------------------------------------------##
-CC		:= c++
+CC		:= g++-11
 
 # Compilation flags
-CFLAGS	:= -Wall -Wextra -Werror -std=c++98 -g
+CFLAGS	:= -Wall -Wextra -Werror -std=c++98 #-g
 # explicit compilation
 $(OBJ_DIR)%.o: %.cpp 
 	@$(CC) $(CFLAGS) $(INCLUDE)  -c $< -o $@

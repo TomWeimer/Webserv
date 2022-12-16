@@ -34,7 +34,7 @@ bool Method::need_directory_listing()
 
 void Method::post()
 {
-	// std::cerr << "body: " << _request->body  << std::endl;
+	//  std::cerr << "body: " << _request->body  << std::endl;
 	_response->body.clear();
 	if (file_exists(_request->target) == true)
 		set_status_code(203);
@@ -45,6 +45,7 @@ void Method::post()
 	else
 	{
 		std::ofstream newFile;
+		std::cerr << "target: " << _request->target.c_str() << std::endl;
 		newFile.open(_request->target.c_str(), std::ofstream::out); // for cgi appending: ofs.open ("test.txt", std::ofstream::out | std::ofstream::app);
 		newFile << _request->body;
 		newFile.close();
@@ -98,7 +99,7 @@ void Method::handle_chunked_request(){
 	std::cout << "ici" << std::endl;
 	while (body.find("\r\n")){
 		std::string size = body.substr(0, body.find("\r\n"));
-		int size_int = std::stoi(size, nullptr, 16);
+		int size_int = StrToHex(size);
 		size += size_int;
 		if (size_int == 0)
 			break;
