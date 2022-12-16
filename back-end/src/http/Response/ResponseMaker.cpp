@@ -87,7 +87,7 @@ std::string ResponseMaker::new_error_page(std::string message)
 	html += "<h1>Error Page</h1>\n";
 	html += "<span>" + message + "</span>\n";
 	html += "</body>\n";
-	html += "</html>\n";
+	html += "</html>";
 	return (html);
 }
 

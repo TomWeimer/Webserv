@@ -33,7 +33,9 @@ std::string obtain_body_content(std::string target)
 
 	file.open(target.c_str());
 	while (std::getline(file, line)){
-		file_content += line + "\n";
+		file_content += line;
+		if (file.eof() != true)
+			file_content += "\n";
 	}
 	file.close();
 	return (file_content);

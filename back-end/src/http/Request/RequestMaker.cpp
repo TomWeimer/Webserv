@@ -47,7 +47,20 @@ void RequestMaker::assign_content(std::string request)
 // parse the request into tokens
 std::vector<KeyWord> RequestMaker::parse_request()
 {
-	Lexer	lexer(Vocabulary("./back-end/.tools/HTTP.ebnf"));
+	std::string ebnf_path;
+	char *test_folder;
+
+	test_folder = getenv("TEST_FOLDER");
+	if (test_folder == NULL)
+		ebnf_path = "./back-end/.tools/GrammarFiles/HTTP.ebnf";
+	else
+	{
+		ebnf_path = test_folder;
+		ebnf_path += "/../back-end/.tools/GrammarFiles/HTTP.ebnf";
+	}
+	
+
+	Lexer	lexer(Vocabulary(ebnf_path.c_str()));
 
 	// std::cout << "line: " << _request->line << std::endl << std::endl;
 	// std::cout << "body: " << _request->body << std::endl << std::endl;
@@ -148,6 +161,7 @@ void RequestMaker::expand_request()
 	if (_request->location->redirection.type != UNINITIALIZED)
 		_request->target = expand_redirection();
 	_request->target = expand_target();
+	std::cerr << _request->target << std::endl;
 	// std::cerr << "request: " << _request->method << " " << _request->target << " " << _request->version << std::endl;
 }
 

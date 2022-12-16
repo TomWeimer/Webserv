@@ -3,7 +3,7 @@
 std::string DirectoryListing::obtain_directory_content(std::string target, std::string root)
 {
 	obtain_directory_info(target);
-	create_links_to_entries(target, root);
+	create_links(target, root);
 	return (build_html_page(target));
 }
 
@@ -17,18 +17,18 @@ void DirectoryListing::obtain_directory_info(std::string target)
 	closedir(_directory);
 }
 
-void DirectoryListing::create_links_to_entries(std::string target, std::string root)
+void DirectoryListing::create_links(std::string target, std::string root)
 {
 	std::vector<entry_t>::iterator	it;
 	std::string						entry_name;
-	std::string						link;
+	std::string						html_link;
 
 	target = format_target(target, root.size());
 	for (it = _entries.begin(); it != _entries.end(); it++)
 	{
 		entry_name = it->d_name;
-		link = "<a href=\"" + target + entry_name + "\">" + entry_name + "</a></br>\n";
-		_links += link;
+		html_link = "<a href=\"" + target + entry_name + "\">" + entry_name + "</a></br>\n";
+		_html_links += html_link;
 	}
 }
 
@@ -52,7 +52,7 @@ std::string DirectoryListing::build_html_page(std::string target)
 	html += "</head>\n";
 	html += "<body>\n";
 	html += "\t<h1>Index of " + target + " </h1>\n";
-	html += _links;
+	html += _html_links;
 	html += "</body></html>";
 	return (html);
 }

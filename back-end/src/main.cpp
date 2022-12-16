@@ -25,20 +25,37 @@ std::vector<KeyWord> obtain_server_config(std::vector<KeyWord>& parsed_file)
 }
 void	new_server(std::vector<KeyWord>& parsed_file, std::vector<Server*>& servers)
 {
+	static int i = 0;
 	try
 	{
 		Server *new_server = new Server(obtain_server_config(parsed_file));
 		servers.push_back(new_server);
+		std::cerr << "Server" << i << ": created" << std::endl;
 	}
 	catch (std::exception& e)
 	{
+		std::cerr << "Server" << i << ": not created" << std::endl;
 		std::cerr << e.what() << std::endl;
 	}
+	i++;
 }
 
 std::vector<KeyWord> parse_config_file(const std::string& configFile)
 {
-	Lexer	lexer("./back-end/.tools/webserv.ebnf", configFile);
+	std::string ebnf_path;
+	char *test_folder;
+
+	test_folder = getenv("TEST_FOLDER");
+	if (test_folder == NULL)
+		ebnf_path = "./back-end/.tools/GrammarFiles/webserv.ebnf";
+	else
+	{
+		ebnf_path = test_folder;
+		ebnf_path += "/../back-end/.tools/GrammarFiles/webserv.ebnf";
+	}
+	
+
+	Lexer	lexer(ebnf_path.c_str(), configFile);
 	return (lexer.lexeme());
 }
 
@@ -61,9 +78,12 @@ int main(int argc, char *argv[])
 	if (argc == 2)
 		create_servers(argv[1], servers);
 	else
-		create_servers("back-end/.config/webserv.conf", servers);
-	manager->start_servers(servers);
-	manager->manage_connections();
+		create_servers("back-end/.config/default.conf", servers);
+	if (servers.empty() == false)
+	{
+		manager->start_servers(servers);
+		manager->manage_connections();
+	}
 }
 
 

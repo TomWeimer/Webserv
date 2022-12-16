@@ -10,7 +10,7 @@ private:
 	DIR*					_directory;
 	entry_t*				_actualEntry;
 	std::vector<entry_t>	_entries;
-	std::string				_links;
+	std::string				_html_links;
 
 public:
 	DirectoryListing() {}
@@ -21,7 +21,7 @@ public:
 
 private:
 	void		obtain_directory_info(std::string target);
-	void		create_links_to_entries(std::string target, std::string root);
+	void		create_links(std::string target, std::string root);
 	std::string	format_target(std::string target, size_t root_size);
 	std::string build_html_page(std::string target);
 };

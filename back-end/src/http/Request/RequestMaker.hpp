@@ -1,5 +1,6 @@
 #ifndef REQUESTMAKER_HPP
 #define	REQUESTMAKER_HPP
+#include <cstdlib>
 #include "Request.hpp"
 #include "../../Server/Server.hpp"
 #include "../../utils/Parsing/Lexer/Lexer.hpp"
